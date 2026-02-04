@@ -1,0 +1,13 @@
+
+#pastas ignoradas
+
+input/
+output/
+
+# arquivos de ambiente
+
+*.env
+
+# logs e arquivos temporarios
+
+npm-debug.log
