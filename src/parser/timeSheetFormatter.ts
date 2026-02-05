@@ -22,7 +22,7 @@ type TimeSheet = {
 
 const dayLineRegex = /^(\d{2}\/\d{2}\/\d{2})\s+([a-z]+)\s+/
 const timeGroupRegex = /\(([^)]+)\)/g;
-const traillingTimeRegex = /\b\d{2}:\d{2}\b/
+const traillingTimeRegex = /\b\d{2}:\d{2}\b/g
 
 function matchDayHeader(line:string) {
     const match = line.match(dayLineRegex)

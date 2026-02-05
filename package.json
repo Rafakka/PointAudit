@@ -1,10 +1,7 @@
 {
   "devDependencies": {
-    "@types/jest": "^30.0.0",
     "@types/node": "^25.2.0",
     "@types/pdf-parse": "^1.1.5",
-    "jest": "^30.2.0",
-    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
@@ -13,5 +10,8 @@
     "dotenv": "^17.2.3",
     "pdf-parse": "^2.4.5",
     "zod": "^4.3.6"
+  },
+  "scripts": {
+    "test:pdf":"ts-node tests/pdf.integratiion.ts"
   }
 }
