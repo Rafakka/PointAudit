@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import { PDFParse } from 'pdf-parse'
-import { normalize } from './src/parser/parser'
-import { extractData } from './src/parser/parser'
+import { buildTimeSheet, normalize } from '../src/parser/parser'
+import { extractData } from '../src/parser/parser'
 
 const caminho = "input/ponto janeiro eletronico.pdf"
 
@@ -33,6 +33,10 @@ async function debugPdf(path:string) {
     console.log("\n===AFTER N+EXTRACTION TEXT FULL===")
     const normalizedAndExtractedText = extractData(normalizedText)
     console.log(normalizedAndExtractedText)
+
+    console.log("\n===TIME SHEET===")
+    const sheet = buildTimeSheet(normalizedText)
+    console.log(sheet)
 
 }
 
