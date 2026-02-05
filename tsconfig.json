@@ -3,7 +3,7 @@
     "target": "es2020",
     "module": "commonjs",
     "strict": true,
-    "types": ["node"],
+    "types": ["node","jest"],
     "exactOptionalPropertyTypes": true,
     "noUncheckedIndexedAccess": true,
     "outDir": "dist",

@@ -1,44 +1,43 @@
-import * as fs from 'fs'
-import { PDFParse } from 'pdf-parse'
+import { loadPdfText } from './helpers/loadPdfText'
 import { normalize } from '../src/parser/basic'
 import { extractData } from '../src/parser/dataUserParser'
 import { buildTimeSheet } from '../src/parser/timeSheetFormatter'
 
 const caminho = "input/ponto janeiro eletronico.pdf"
 
-async function debugPdf(path:string) {
-    const buffer = fs.readFileSync(path)
+describe ("PDF INTEGRATION - real eletronic timesheet",()=>{
+    let rawText:string
+    let normalizeText:string
 
-    const parser = new PDFParse({data:buffer})
-    const result = await parser.getText()
+    beforeAll(async()=>{
+        rawText = await loadPdfText(caminho)
+        normalizeText = normalize(rawText)
+    })
 
-    console.log("===PDF METADATA===")
-    console.log({
-        pages:result.pages?.length,
-        hasPages:Array.isArray(result.pages),
-    });
+    it("Loads PDF text",()=>{
+        expect(rawText.length).toBeGreaterThan(1000)
+    })
 
-    console.log("\n===RAW PAGE STRUCTURE(first page)===")
-    console.log(result.pages?.[0])
+    it("normalize text correctly",()=>{
+        expect(normalizeText).toContain("funcionario")
+        expect(normalizeText).not.toMatch(/[áéíóú]/)
+    })
 
-    console.log("\n===RAW TEXT(first 500 chars)===")
-    console.log(result.text.slice(0,500))
+    it("Extracts user data",()=>{
+        const user = extractData(normalizeText)
 
-    console.log("\n===RAW TEXT FULL===")
-    console.log(result.text)
+        expect(user.nome).toBeTruthy()
+        expect(user.identificador).toMatch(/\d+/)
+        expect(user.cargo).toBeTruthy()
+    })
 
-    console.log("\n===AFTER NORMALIZATION TEXT FULL===")
-    const normalizedText = normalize(result.text)
-    console.log(normalizedText)
-
-    console.log("\n===AFTER N+EXTRACTION TEXT FULL===")
-    const normalizedAndExtractedText = extractData(normalizedText)
-    console.log(normalizedAndExtractedText)
-
-    console.log("\n===TIME SHEET===")
-    const sheet = buildTimeSheet(normalizedText)
-    console.log(sheet)
-
-}
-
-debugPdf(caminho)
+    it("build a timesheet",()=> {
+        const sheet = buildTimeSheet(normalizeText)
+        expect(sheet.dias).toBeDefined()
+        expect(Object.keys(sheet.dias).length).toBeGreaterThan(10)
+        const firstDay = sheet.dias["2026-01-05"]
+        expect(firstDay).toBeDefined()
+        expect(firstDay?.previsto.length).toBeGreaterThan(0)
+        expect(firstDay?.realizado.length).toBeGreaterThan(0)
+    })
+})

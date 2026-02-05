@@ -1,4 +1,4 @@
-import { extrairDadosPonto } from "./parser/parser";
+import { extrairDadosPonto } from './parser/commonPdfParser';
 import 'dotenv/config'
 
 const caminho = process.env.CAMINHO_PDF || ""
