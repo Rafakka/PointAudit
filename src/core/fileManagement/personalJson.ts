@@ -1,12 +1,15 @@
 
+import { generateKey } from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
+import { generatedUserId } from './hasher'
 
 export interface PersonalData {
     meta : {
         schemaVersion:number
         extractedAt:string
         source:string
+        userId:string
     }
     person: {
         name:string
@@ -54,15 +57,26 @@ export function savePersonalJson(
         person.company = data.person.company
     }
 
-    const masked:MaskedPersonalData = {
-        meta:data.meta,
-        person
+    const rawUserKey = data.person.employeeId ??
+    `${data.person.name}:${data.person.company ?? "unknown"}`
+
+    const userId = generatedUserId(rawUserKey)
+
+    const metaWithUserId: PersonalData["meta"] = {
+        ...data.meta,
+        userId
     }
 
+    const masked:MaskedPersonalData = {
+        meta:metaWithUserId,
+        person
+    }
+    
     fs.mkdirSync(outputDir,{recursive:true})
 
+    const fileName = `data.${metaWithUserId.userId}.json`
 
-    const filePath = path.join(outputDir,"personal.json")
+    const filePath = path.join(outputDir,fileName)
     const tmpPath = filePath + ".tmp"
 
     if (fs.existsSync(filePath)) {
