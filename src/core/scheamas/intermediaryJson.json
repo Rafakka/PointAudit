@@ -1,0 +1,17 @@
+
+{
+    "type":"object",
+    "required":["meta","days"],
+    "properties":{
+        "meta": {
+            "type":"object",
+            "required":["source","extractedAt","parserVersion"]
+        },
+        "days":{
+            "type":"object",
+            "additionalProperties":{
+                "$ref":"#/definitions/dayRecord"
+            }
+        }
+    }
+}

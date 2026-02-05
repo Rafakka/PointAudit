@@ -12,6 +12,6 @@
     "zod": "^4.3.6"
   },
   "scripts": {
-    "test:pdf":"ts-node tests/pdf.integratiion.ts"
+    "test:pdf":"ts-node tests/pdf.integration.ts"
   }
 }
