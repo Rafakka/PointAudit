@@ -1,7 +1,8 @@
 import * as fs from 'fs'
 import { PDFParse } from 'pdf-parse'
-import { buildTimeSheet, normalize } from '../src/parser/parser'
-import { extractData } from '../src/parser/parser'
+import { normalize } from '../src/parser/basic'
+import { extractData } from '../src/parser/dataUserParser'
+import { buildTimeSheet } from '../src/parser/timeSheetFormatter'
 
 const caminho = "input/ponto janeiro eletronico.pdf"
 
