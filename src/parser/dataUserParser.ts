@@ -4,7 +4,7 @@ interface DadosFuncionario {
     centroCusto:string
     atrasos:string
     cargo:string
-    identificador:string
+    registro:string
 }
 
 export function extractData(text:string):DadosFuncionario {
@@ -18,7 +18,7 @@ export function extractData(text:string):DadosFuncionario {
         nome:
         text.match(/funcionario:\s*([a-z\s]+)/)?.[1]?.trim() ?? "Não encontrado",
         
-        identificador:
+        registro:
             registroMatch?.[1] ??
             cartaoMatch?.[1] ??
             "0",

@@ -1,6 +1,5 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { generatedUserId } from './hasher'
 
 export interface PersonalData {
     meta : {
@@ -55,15 +54,7 @@ export function savePersonalJson(
         person.company = data.person.company
     }
 
-    const rawUserKey = data.person.employeeId ??
-    `${data.person.name}:${data.person.company ?? "unknown"}`
-
-    const userId = generatedUserId(rawUserKey)
-
-    const metaWithUserId: PersonalData["meta"] = {
-        ...data.meta,
-        userId
-    }
+    const metaWithUserId = data.meta
 
     const masked:MaskedPersonalData = {
         meta:metaWithUserId,

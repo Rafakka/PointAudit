@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { JoinedUserContext, OutputType } from './ouputTypes'
 import { WriteJsonOutput } from './ouputTypes'
+import { safeDelete } from '../../utils/removerManager'
 
 interface OutputManagerOptions {
     baseDir: string
@@ -14,13 +15,14 @@ export function OutputManager(options:OutputManagerOptions) { const { baseDir, u
 {
     const personalPath = path.join(
         baseDir,
-        `personal.${userId}.json`
+        `data.${userId}.json`
     )
 
     const timeSheetPath = path.join(
         baseDir,
-        `timesheet.${userId}.json`
+        `timeSheet.${userId}.json`
     )
+
 
     if (!fs.existsSync(personalPath)) {
         throw new Error(`Personal JSON not found: ${personalPath}`)
@@ -49,7 +51,7 @@ export function OutputManager(options:OutputManagerOptions) { const { baseDir, u
             extractedAt:personal.meta.extractedAt,
             schemaVersions:{
                 personal:personal.meta.schemaVersions,
-                timesheet:personal.meta.timesheet
+                timesheet:timesheet.meta.schemaVersions
             }
         },
         person:personal.person,
@@ -58,15 +60,23 @@ export function OutputManager(options:OutputManagerOptions) { const { baseDir, u
         }
     }
 
+    let outputPath:string
+
     switch(outputType) {
         case "json":
-            return WriteJsonOutput(context, outputDir)
+            outputPath = WriteJsonOutput(context, outputDir)
+            break
         case "csv":
             throw new Error("Not yet")
         case "pdf":
             throw new Error("Not yet")
         default:
-            throw new Error("Not yet")
+            throw new Error(`Unsupported output type:${outputType}`)
         }
+
+        safeDelete(personalPath)
+        safeDelete(timeSheetPath)
+
+        return outputPath
     }
 }

@@ -14,6 +14,7 @@
   "scripts": {
     "test:pdf":"ts-node tests/pdf.integration.ts",
     "test:pdis":"ts-node tests/personal.data.intermediary.save.ts",
-    "test:pdtis":"ts-node tests/personal.data.time.intermediary.save.ts"
+    "test:pdtis":"ts-node tests/personal.data.time.intermediary.save.ts",
+    "test:pipeline-json":"ts-node tests/full.pipeline.tests.ts"
   }
 }

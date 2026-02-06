@@ -1,4 +1,4 @@
-import fs from 'fs'
+import *as fs from 'fs'
 import { PDFParse } from 'pdf-parse';
 import { normalize } from './basic';
 
