@@ -1,7 +1,6 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
-import { meta } from 'zod'
 
 interface TimeHm {
     h:number
