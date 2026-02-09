@@ -5,9 +5,8 @@ function RightSideBar(){
             <SideAction active label="Inserir PDF" icon=""/>
             
             <div className="mt-6 space-y-2">
-            <SideAction disable label="Analisar"/>
-            <SideAction disable label="Validar"/>
-            <SideAction disable label="Exportar"/>
+            <SideAction disable label="Visualizar"/>
+            <SideAction disable label="Excluir Arquivo"/>
             </div>
         </aside>
     )
