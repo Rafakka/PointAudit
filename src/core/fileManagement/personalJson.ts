@@ -80,3 +80,12 @@ export function savePersonalJson(
     return filePath
 
 }
+
+export async function loadPersonalJson(baseDir:string){
+
+    if(!fs.existsSync(baseDir)){
+        throw new Error(`personal.json not found at ${baseDir}`)
+    }
+
+    return JSON.parse(fs.readFileSync(baseDir,"utf-8"))
+}

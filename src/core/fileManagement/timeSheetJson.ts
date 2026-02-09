@@ -58,3 +58,15 @@ export function saveTimeSheetJson(
     return filePath
 
 }
+
+export async function loadTimeSheetJson(baseDir:string){
+
+    const file = path.join(baseDir,"personal.json")
+
+    if(!fs.existsSync(file)){
+        throw new Error ("personal.json not found")
+    }
+
+    return JSON.parse(fs.readFileSync(file,"utf-8"))
+
+}

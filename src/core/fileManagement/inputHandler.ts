@@ -6,7 +6,6 @@ export async function inputHandler(req:Request, res:Response) {
     if(!req.file) {
         return res.status(400).json({error:"no file uploaded"});
     }
-    
 
     const jobDir = path.resolve("input")
     fs.mkdirSync(jobDir,{recursive:true})
@@ -17,7 +16,9 @@ export async function inputHandler(req:Request, res:Response) {
 
     fs.unlinkSync(req.file.path)
 
-    return res.json({
-        status:"queued"
+
+    return res.json({        
+        status:"queued",
+        jobDir
     });
 }

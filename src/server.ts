@@ -3,6 +3,8 @@ import express from "express";
 import multer from "multer";
 import { inputHandler } from "./core/fileManagement/inputHandler";
 import { safeDelete } from "./utils/removerManager";
+import { RunBasicPipeLine } from './core/pipelines/basicPipeLine';
+import { writeState } from './utils/stateWriter';
 
 const app = express();
 const upload = multer({dest:"tmp/"})
@@ -24,4 +26,16 @@ app.get("/input/state",(req, res)=>{
     const exits = fs.existsSync("input") && fs.readdirSync("input").length > 0;
 
     res.json({hasInput:exits})
+})
+
+app.post("/pipeline/start",async(req,res)=>{
+    const {jobDir} = req.body
+    const result = await RunBasicPipeLine(jobDir,"confirmed")
+    res.json(result)
+})
+
+app.post("/pipeline/cancel", async(req, res)=>{
+    const {jobDir}= req.body
+    writeState(jobDir, {phase:"cancelled"})
+    res.json({phase:"cancelled"})
 })
