@@ -42,7 +42,7 @@ function matchDayHeader(line:string) {
 
 
 function extractTimeGroups(text:string): string[]{
-    return [...text.matchAll(timeGroupRegex)]
+    return Array.from(text.matchAll(timeGroupRegex))
     .map(m=> m[1])
     .filter((g): g is string => Boolean(g))
 }
@@ -67,7 +67,7 @@ function parseTail(tail:string): {
     atrasos?:TimeHm
     observacao:string
 }{
-    const times = [...tail.matchAll(traillingTimeRegex)].map(m=>m[0])
+    const times = Array.from(tail.matchAll(traillingTimeRegex)).map(m=>m[0])
 
     const result: {
         saldoPositivo?: TimeHm

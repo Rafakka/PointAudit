@@ -1,3 +1,4 @@
+import { clearInput } from "../api/delete"
 import EmptyState from "./mainPanel/emptyState"
 
 export default function DashBoard(){
@@ -26,7 +27,7 @@ function SideBar(){
             </button>
 
             <div>Excluir Arquivo</div>
-            <button className="flex items-center gap-2 mb-6">
+            <button className="flex items-center gap-2 mb-6" onClick={()=>clearInput()}>
             <img src="/remove-file.png" className="w-6 h-6"/>
             <span className="font-semibold">Excluir Arquivo</span>
             </button>
