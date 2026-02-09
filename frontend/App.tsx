@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import SplashScreen from "./src/components/SplashScreen";
+import DashBoard from "./src/layout/dashBoard";
 
 export default function App(){
     const [progress, setProgress] = useState(0);
@@ -28,8 +29,6 @@ export default function App(){
     }
 
     return (
-        <div className="h-screen flex items-center justify-center">
-            <h1 className="text-2xl font-bold">Main App Loaded</h1>
-        </div>
+        <DashBoard/>
     );
 }
