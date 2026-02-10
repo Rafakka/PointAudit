@@ -6,6 +6,7 @@ export type PipeLinePhase =
 | "extracted"
 | "confirmed"
 | "finalized"
+| "cancelled"
 
 export interface PipeLineState {
     phase:PipeLinePhase,

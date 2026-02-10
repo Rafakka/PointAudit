@@ -1,14 +1,16 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 import { InitState } from "../state/state";
 import fs from 'fs'
 import path from 'path'
 
-export async function inputHandler(req:Request, res:Response) {
+export async function inputHandler(req:Request): Promise <{jobDir:string; phase:"ingested"}> {
+    
     if(!req.file) {
-        return res.status(400).json({error:"no file uploaded"});
+        throw new Error ("no file uploaded")
     }
 
-    const jobDir = path.resolve("input")
+    const jobDir = path.resolve("input",`job-${Date.now()}`)
+
     fs.mkdirSync(jobDir,{recursive:true})
 
     const destination = path.join(jobDir,"original.pdf")
@@ -19,10 +21,8 @@ export async function inputHandler(req:Request, res:Response) {
 
     fs.unlinkSync(req.file.path)
 
-
-    return res.json({        
-        status:"queued",
+    return {        
         jobDir,
         phase:"ingested"
-    });
+    }
 }
