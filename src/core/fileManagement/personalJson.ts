@@ -1,31 +1,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { PersonalData } from './types'
+import { MaskedPersonalData } from './types'
 
-export interface PersonalData {
-    meta : {
-        schemaVersion:number
-        extractedAt:string
-        source:string
-        userId:string
-    }
-    person: {
-        name:string
-        employeeId?:string
-        role?: string
-        department?:string
-        company?:string
-    }
-}
-
-type MaskedPersonalData = {
-    meta:PersonalData["meta"]
-    person: {
-        name:string
-        employeeIdHash:string
-        role?:string
-        company?:string
-    }
-}
 
 function maskId(id:string) {
     return id.slice(0,2) + "****" + id.slice(-2)
@@ -63,7 +40,7 @@ export function savePersonalJson(
     
     fs.mkdirSync(outputDir,{recursive:true})
 
-    const fileName = `data.${metaWithUserId.userId}.json`
+    const fileName = `personal.json`
 
     const filePath = path.join(outputDir,fileName)
     const tmpPath = filePath + ".tmp"

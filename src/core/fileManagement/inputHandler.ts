@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { InitState } from "../state/state";
 import fs from 'fs'
 import path from 'path'
 
@@ -14,11 +15,14 @@ export async function inputHandler(req:Request, res:Response) {
 
     fs.copyFileSync(req.file.path, destination)
 
+    InitState(jobDir)
+
     fs.unlinkSync(req.file.path)
 
 
     return res.json({        
         status:"queued",
-        jobDir
+        jobDir,
+        phase:"ingested"
     });
 }

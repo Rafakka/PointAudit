@@ -1,8 +1,9 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { JoinedUserContext, OutputType } from './ouputTypes'
+import { JoinedUserContext} from './ouputTypes'
 import { WriteJsonOutput } from './ouputTypes'
 import { safeDelete } from '../../utils/removerManager'
+import { OutputType } from './types'
 
 interface OutputManagerOptions {
     baseDir: string

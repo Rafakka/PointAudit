@@ -1,40 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-
-export interface JoinedUserContext {
-    meta:{
-        userId:string
-        source:string
-        extractedAt:string
-        schemaVersions: {
-            personal:number
-            timesheet: number
-        }
-    }
-    person :{
-        name:string
-        emplyeeIdHash:string
-        role?:string
-        company?:string
-    }
-    timesheet : {
-        days:Record<string,
-        {
-            date:string
-            weekday:string
-            previsto: {h:number, m:number}[]
-            realizado:{h:number, m:number}[]
-            saldoPositivo?:{h:number, m:number}
-            atraso?:{h:number, m:number}
-            observacao:string
-        }>
-    }
-}
-
-export type OutputType =
-| "json"
-| "csv"
-| "pdf"
+import { JoinedUserContext } from './types'
 
 export function WriteJsonOutput(
     context:JoinedUserContext,
@@ -54,3 +20,5 @@ export function WriteJsonOutput(
     )
     return filePath
 }
+
+export { JoinedUserContext }

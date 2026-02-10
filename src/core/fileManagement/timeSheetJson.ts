@@ -1,31 +1,7 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
-
-interface TimeHm {
-    h:number
-    m:number
-}
-
-export interface DayRecord {
-    date:string
-    weekday:string
-    saldoPositivo?: TimeHm
-    previsto:TimeHm[]
-    realizado:TimeHm[]
-    atrasos?: TimeHm
-    observacao: string
-}
-
-export interface PersonalTimeData {
-    meta : {
-        schemaVersion:number
-        extractedAt:string
-        source:string
-        userId:string
-    }
-    dias: Record<string, DayRecord>
-}
+import { PersonalTimeData } from './types'
 
 
 export function saveTimeSheetJson(
@@ -40,9 +16,7 @@ export function saveTimeSheetJson(
 
     fs.mkdirSync(outputDir,{recursive:true})
 
-    const {userId} = data.meta
-
-    const fileName = `timeSheet.${userId}.json`
+    const fileName = `timesheet.json`
     const filePath = path.join(outputDir,fileName)
     const tmpPath = filePath + ".tmp"
 
@@ -61,10 +35,10 @@ export function saveTimeSheetJson(
 
 export async function loadTimeSheetJson(baseDir:string){
 
-    const file = path.join(baseDir,"personal.json")
+    const file = path.join(baseDir,"timesheet.json")
 
     if(!fs.existsSync(file)){
-        throw new Error ("personal.json not found")
+        throw new Error ("timesheet.json not found")
     }
 
     return JSON.parse(fs.readFileSync(file,"utf-8"))

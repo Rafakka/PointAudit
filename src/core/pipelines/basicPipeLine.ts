@@ -1,79 +1,75 @@
 import fs from 'fs'
 import path from 'path'
-import { loadPdfText } from '../../../tests/helpers/loadPdfText'
-import { normalize } from '../../parser/basic'
-import { extractData } from '../../parser/dataUserParser'
-import { buildTimeSheet } from '../../parser/timeSheetFormatter'
-import { formatUserData } from '../../parser/dataUserFormatter'
-import { savePersonalJson, loadPersonalJson, PersonalData } from '../fileManagement/personalJson'
-import { saveTimeSheetJson, loadTimeSheetJson } from '../fileManagement/timeSheetJson'
-import { OutputManager } from '../fileManagement/outputManager'
-import { writeState } from '../../utils/stateWriter'
-
-export type PipelinePayload = {
-    personal?: PersonalData
-    dias?: TimeSheetData
-}
+import { readState, writeState } from '../state/state'
+import { runExtraction } from './extractionPipeLine'
+import { WaitForConfirmation } from './userInputsFromUi'
+import { loadPersonalJson } from '../fileManagement/personalJson'
+import { loadTimeSheetJson } from '../fileManagement/timeSheetJson'
+import { JoinedUserContext, WriteJsonOutput } from '../fileManagement/ouputTypes'
 
 
-export async function RunBasicPipeLine(jobDir:string, phase:"extracted"|"ingested"|"confirmed",payload?:PipelinePayload){
-
-    fs.rmSync("output/json",{recursive:true, force:true})
-
-    const outputBase = "output/json"
-    const finalOutput = "output/json"
+export async function RunBasicPipeLine(
+    jobDir:string,
+){
 
     if (!fs.existsSync(jobDir)) {
         throw new Error(`Pdf not found at${jobDir}`)
     }
 
-    if (phase === "ingested") {
-        const rawText = await loadPdfText(jobDir)
-        const normalized = normalize(rawText)
+    const state = readState(jobDir)
 
-        const personal = extractData(normalized)
-        const timesheet = buildTimeSheet(normalized)
+    if(!state) {
+        throw new Error("Pipeline state missing")
+    }
 
-        const personalData = formatUserData ({
-        parsed:personal,
-        source:path.basename(jobDir)
-        })
+    switch (state.phase) {
+
+        case "ingested":
+            return await runExtraction(jobDir)
         
-        savePersonalJson(personalData, outputBase)
+        case "extracted":
+            return await WaitForConfirmation(jobDir)
 
-        const timeData = {
-        meta:personalData.meta,
-        dias:timesheet.dias
-        }
+        case "confirmed":
+            return await runFinalization(jobDir)
 
-        saveTimeSheetJson(timeData,outputBase)
-
-        return {
-        phase:"extracted",
-        personal:personalData,
-        dias:timeData
-        }
-    }
-
-    if (phase === "confirmed") {
-
-        const personalData = payload?.personal?? loadPersonalJson(jobDir)
-        const timeData = payload?.timesheet?? loadTimeSheetJson(jobDir)
-
-        const result = OutputManager({
-            baseDir:jobDir,
-            userId:personalData.meta.userId,
-            outputType:"json",
-            outputDir:finalOutput
-        })
-
-        writeState(jobDir,{
-            phase:"finalized"
-        })
-
-        return {
-            phase:"finalized",
-            result,
+        case "finalized":
+            return {
+                phase: "finalized",
+                message:"Pipeline already completed"
             }
-        }
+
+        default:
+            throw new Error (`Unknown phase:${state.phase}`)
     }
+}
+
+export async function runFinalization(jobDir:string){
+
+    const state = readState(jobDir)
+
+    if (!state || state.phase !== "confirmed") {
+        throw new Error (`Cannot finalize job in phase ${state?.phase??"unknown"}`)
+    }
+
+    const personal = await loadPersonalJson(jobDir)
+    const timesheet = await loadTimeSheetJson(jobDir)
+
+    const context: JoinedUserContext = {
+        meta: personal.meta,
+        person:personal.person,
+        timesheet:timesheet.dias,
+    }
+
+    const outputDir = path.join(jobDir,"output")
+    const outputPath = WriteJsonOutput(context, outputDir)
+
+    writeState(jobDir,"finalized")
+
+    return {
+        phase:"finalized",
+        outputPath,
+        userId:context.meta.userId
+    }
+
+}
