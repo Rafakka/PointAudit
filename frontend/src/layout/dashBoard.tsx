@@ -1,39 +1,79 @@
+import { useState } from "react"
 import { clearInput } from "../api/delete"
 import EmptyState from "./mainPanel/emptyState"
+
+type PipelinePhase =
+| "ingested"
+| "extracted"
+| "confirmed"
+| "finalized"
+
+interface JobState {
+    phase:PipelinePhase
+    creatAt?:string
+    updatedAt?:string
+}
+
+const [jobDir, setJobDir] = useState<string | null>(null)
+const [state, setState] = useState<JobState | null>(null)
+const [loading, setLoading] = useState(false)
+const [error, setError] = useState<string | null>(null)
+
 
 export default function DashBoard(){
     return (
         <div className="h-screen w-screen flex bg-gray-100">
-            <SideBar/>
+            <SideBar
+            onUpload={handleUpload}
+            onConfirm={handleConfirm}
+            onFinalize={handleFinalize}
+            onClear={handleClear}
+            
+            />
             <MainArea/>
         </div>
     )
+
+    function handleUpload(){
+        console.log("Upload")
+    }
+    function handleConfirm(){
+        console.log("Confirm")
+    }
+    function handleFinalize(){
+        console.log("Finalize")
+    }
+    function handleClear(){
+        console.log("Clear")
+    }
 }
 
-function SideBar(){
+function SideBar({
+    onUpload,
+    onConfirm,
+    onFinalize,
+    onClear,
+}:{
+    onUpload:() => void
+    onConfirm:() => void
+    onFinalize:() => void
+    onClear:() => void
+}) {
     return (
-    <aside className="w-64 bg-white border-l flex flex-col p-4">
-        <button className="flex items-center gap-2 mb-6">
-        <img src="/input-file.png" className="w-6 h-6"/>
-        <span className="font-semibold">Carregar PDF</span>
-        </button>
-
-        <div className="space-y-3 text-gray-400">
-            
-            <div>Visualizar</div>
-            <button className="flex items-center gap-2 mb-6">
-            <img src="/search-file.png" className="w-6 h-6"/>
-            <span className="font-semibold">Visualizar dados</span>
+        <aside className="w-64 bg-white border-1 flex flex-col p-4">
+            <button onClick={onUpload}>
+                CarregarPDf
             </button>
-
-            <div>Excluir Arquivo</div>
-            <button className="flex items-center gap-2 mb-6" onClick={()=>clearInput()}>
-            <img src="/remove-file.png" className="w-6 h-6"/>
-            <span className="font-semibold">Excluir Arquivo</span>
+            <button onClick={onConfirm}>
+                Visualizar dados
             </button>
-
-        </div>
-    </aside>
+            <button onClick={onFinalize}>
+                Finalizar
+            </button>
+            <button onClick={onClear}>
+                Excluir Arquivo
+            </button>
+        </aside>
     )
 }
 

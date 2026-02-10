@@ -1,9 +1,10 @@
+import { API_BASE } from "./client"
 
 export async function uploadPdf(file:File){
     const fromData = new FormData()
     fromData.append("file", file)
 
-    const res = await fetch("http://localhost:8000/upload",{
+    const res = await fetch(`${API_BASE}/upload`,{
         method:"POST",
         body: fromData,
     })
@@ -13,6 +14,8 @@ export async function uploadPdf(file:File){
     }
 
     return res.json() as Promise<{
-        jobId:string
+        jobDir:string
+        phase:"ingested"
+        status:"queued"
     }>
 }
