@@ -4,6 +4,7 @@ import { confirmJob } from "../api/jobs"
 import { finalizeJob } from "../api/jobs"
 import { clearInput } from "../api/delete"
 import EmptyState from "./mainPanel/emptyState"
+import { useRef } from "react"
 
 type Phase =
 | "ingested"
@@ -25,6 +26,7 @@ export default function DashBoard(){
     const [error, setError] = useState<string | null>(null)
 
     async function handleUpload(file:File){
+        console.log("UPLOADED TRIGGERED",file)
         try{
             setLoading(true)
             setError(null)
@@ -91,43 +93,37 @@ export default function DashBoard(){
     )
 }
 
-function SideBar({
-    onUpload,
-    onConfirm,
-    onFinalize,
-    onClear,
-}:{
-    onUpload:(file:File) => void
-    onConfirm:() => void
-    onFinalize:() => void
-    onClear:() => void
-}) {
+function SideBar(props:{
+    onUpload: (file:File)=> void,
+    onConfirm:() => void,
+    onFinalize:() => void,
+    onClear:() => void,
+}){
+    const fileInputRef = useRef<HTMLInputElement>(null)
     return (
         <aside className="w-64 bg-white border-1 flex flex-col p-4">
             <input
+            ref={fileInputRef}
             type="file" 
             accept="application/pdf"
             style={{display:"none"}}
-            id="pdfinput"
             onChange={(e) =>
                 {
-                if(e.target.files && e.target.files[0]){
-                onUpload(e.target.files[0])
+                const file = e.target.files?.[0]
+                if(file) props.onUpload(file)
                 }
-            }} 
+            } 
             />
-
-            <button onClick={()=> {
-                document.getElementById("pdfinput")?.click()
-            }}>
+            <button onClick={()=> {fileInputRef.current?.click()}}>
+            Carregar PDF
             </button>
-            <button onClick={onConfirm}>
+            <button onClick={props.onConfirm}>
                 Visualizar dados
             </button>
-            <button onClick={onFinalize}>
+            <button onClick={props.onFinalize}>
                 Finalizar
             </button>
-            <button onClick={onClear}>
+            <button onClick={props.onClear}>
                 Excluir Arquivo
             </button>
         </aside>
