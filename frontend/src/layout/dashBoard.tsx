@@ -141,7 +141,16 @@ function MainArea({phase, loading, error}:MainAreaProps){
                 <img src="/logo.png" className="w-5 h-5 opacity-60"/>
             </header>
             <section className="flex-1 flex items-center justify-center">
-                <EmptyState/>
+                {loading && <div>Loading...</div>}
+                {!loading && error && (
+                    <div className="text-red-500">{error}</div>
+                )}
+                {!loading && !error && !phase &&(
+                    <EmptyState/>
+                )}
+                {!loading && phase && (
+                    <div>Current phase:{phase}</div>
+                )}
             </section>
         </main>
     )
