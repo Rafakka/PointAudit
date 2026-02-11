@@ -1,3 +1,4 @@
+import cors from "cors"
 import fs from 'fs'
 import express from "express";
 import multer from "multer";
@@ -9,9 +10,11 @@ import { loadPersonalJson } from './core/fileManagement/personalJson';
 import { loadTimeSheetJson } from './core/fileManagement/timeSheetJson';
 
 const app = express();
-const upload = multer({dest:"tmp/"})
 
+app.use(cors())
 app.use(express.json())
+
+const upload = multer({dest:"tmp/"})
 
 app.listen(8000, ()=>{
     console.log("Backend running on http://localhost:8000")
@@ -28,6 +31,7 @@ app.post(
 
             return res.json(result)
         } catch (err:any) {
+            console.error("Upload Error",err)
             return res.status(400).json({
                 error:err.message
             })

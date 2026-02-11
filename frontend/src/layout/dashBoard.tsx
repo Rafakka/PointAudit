@@ -105,7 +105,8 @@ function SideBar(props:{
             <input
             ref={fileInputRef}
             type="file" 
-            accept="application/pdf"
+            accept="applcation/pdf"
+            id="pdfinput"
             style={{display:"none"}}
             onChange={(e) =>
                 {
