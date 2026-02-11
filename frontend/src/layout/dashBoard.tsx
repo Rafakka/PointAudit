@@ -1,26 +1,78 @@
 import { useState } from "react"
+import { uploadPdf } from "../api/upload"
+import { confirmJob } from "../api/jobs"
+import { finalizeJob } from "../api/jobs"
 import { clearInput } from "../api/delete"
 import EmptyState from "./mainPanel/emptyState"
 
-type PipelinePhase =
+type Phase =
 | "ingested"
 | "extracted"
 | "confirmed"
 | "finalized"
 
-interface JobState {
-    phase:PipelinePhase
-    creatAt?:string
-    updatedAt?:string
+type MainAreaProps = {
+    phase: Phase | null
+    loading: boolean
+    error: string | null
 }
 
-const [jobDir, setJobDir] = useState<string | null>(null)
-const [state, setState] = useState<JobState | null>(null)
-const [loading, setLoading] = useState(false)
-const [error, setError] = useState<string | null>(null)
-
-
 export default function DashBoard(){
+
+    const [jobDir, setJobDir] = useState<string | null>(null)
+    const [phase, setPhase] = useState<Phase | null>(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+
+    async function handleUpload(file:File){
+        try{
+            setLoading(true)
+            setError(null)
+
+            const result = await uploadPdf(file)
+
+            setJobDir(result.jobDir)
+            setPhase(result.phase)
+
+        }catch(err:any){
+            setError(err.message)
+        }finally{
+            setLoading(false)
+        }
+    }
+
+    async function handleConfirm(){
+        if(!jobDir)return
+        try {
+            setLoading(true)
+            const result = await confirmJob(jobDir)
+            setPhase(result.phase)}catch(err:any){
+                setError(err.message)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+    async function handleFinalize() {
+        if(!jobDir)return
+        try{
+        setLoading(true)
+        const result = await finalizeJob(jobDir)
+        setPhase(result.phase)
+        } catch (err:any) {
+            setError(err.message)
+        } finally {
+            setLoading(false)
+        }
+        
+    }
+
+    async function handleClear() {
+        await clearInput()
+        setJobDir(null)
+        setPhase(null)
+    }
+
     return (
         <div className="h-screen w-screen flex bg-gray-100">
             <SideBar
@@ -30,22 +82,13 @@ export default function DashBoard(){
             onClear={handleClear}
             
             />
-            <MainArea/>
+            <MainArea
+            phase={phase}
+            loading={loading}
+            error={error}
+            />
         </div>
     )
-
-    function handleUpload(){
-        console.log("Upload")
-    }
-    function handleConfirm(){
-        console.log("Confirm")
-    }
-    function handleFinalize(){
-        console.log("Finalize")
-    }
-    function handleClear(){
-        console.log("Clear")
-    }
 }
 
 function SideBar({
@@ -54,15 +97,29 @@ function SideBar({
     onFinalize,
     onClear,
 }:{
-    onUpload:() => void
+    onUpload:(file:File) => void
     onConfirm:() => void
     onFinalize:() => void
     onClear:() => void
 }) {
     return (
         <aside className="w-64 bg-white border-1 flex flex-col p-4">
-            <button onClick={onUpload}>
-                CarregarPDf
+            <input
+            type="file" 
+            accept="application/pdf"
+            style={{display:"none"}}
+            id="pdfinput"
+            onChange={(e) =>
+                {
+                if(e.target.files && e.target.files[0]){
+                onUpload(e.target.files[0])
+                }
+            }} 
+            />
+
+            <button onClick={()=> {
+                document.getElementById("pdfinput")?.click()
+            }}>
             </button>
             <button onClick={onConfirm}>
                 Visualizar dados
@@ -77,7 +134,7 @@ function SideBar({
     )
 }
 
-function MainArea(){
+function MainArea({phase, loading, error}:MainAreaProps){
     return (
         <main className="flex-1 flex flex-col">
             <header className="h-12 bg-white border-b flex items-center px-4">
