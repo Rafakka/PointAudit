@@ -25,13 +25,9 @@ app.post(
     upload.single("file"),
     async (req, res) => {
         try{
-            const {jobDir} = await inputHandler(req)
-
-            const result = await RunBasicPipeLine(jobDir)
-
+            const result = await inputHandler(req)
             return res.json(result)
         } catch (err:any) {
-            console.error("Upload Error",err)
             return res.status(400).json({
                 error:err.message
             })

@@ -3,6 +3,7 @@ import { uploadPdf } from "../api/upload"
 import { confirmJob } from "../api/jobs"
 import { finalizeJob } from "../api/jobs"
 import { clearInput } from "../api/delete"
+import { getExtractedData } from "../api/jobs"
 import EmptyState from "./mainPanel/emptyState"
 import { useRef } from "react"
 
@@ -16,6 +17,7 @@ type MainAreaProps = {
     phase: Phase | null
     loading: boolean
     error: string | null
+    extractedData: any | null
 }
 
 export default function DashBoard(){
@@ -24,6 +26,7 @@ export default function DashBoard(){
     const [phase, setPhase] = useState<Phase | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [extractedData, setExtractedData] = useState<any | null>(null)
 
     async function handleUpload(file:File){
         console.log("UPLOADED TRIGGERED",file)
@@ -36,6 +39,22 @@ export default function DashBoard(){
             setJobDir(result.jobDir)
             setPhase(result.phase)
 
+        }catch(err:any){
+            setError(err.message)
+        }finally{
+            setLoading(false)
+        }
+    }
+
+    async function handleViewer(){
+        if(!jobDir) return
+        try {
+            setLoading(true)
+            setError(null)
+
+            const data = await getExtractedData(jobDir)
+            setExtractedData(data)
+            setPhase("extracted")
         }catch(err:any){
             setError(err.message)
         }finally{
@@ -79,6 +98,7 @@ export default function DashBoard(){
         <div className="h-screen w-screen flex bg-gray-100">
             <SideBar
             onUpload={handleUpload}
+            onHandleViewer={handleViewer}
             onConfirm={handleConfirm}
             onFinalize={handleFinalize}
             onClear={handleClear}
@@ -88,6 +108,7 @@ export default function DashBoard(){
             phase={phase}
             loading={loading}
             error={error}
+            extractedData={extractedData}
             />
         </div>
     )
@@ -95,6 +116,7 @@ export default function DashBoard(){
 
 function SideBar(props:{
     onUpload: (file:File)=> void,
+    onHandleViewer:()=> void,
     onConfirm:() => void,
     onFinalize:() => void,
     onClear:() => void,
@@ -115,10 +137,7 @@ function SideBar(props:{
                 }
             } 
             />
-            <button onClick={()=> {fileInputRef.current?.click()}}>
-            Carregar PDF
-            </button>
-            <button onClick={props.onConfirm}>
+            <button onClick={props.onHandleViewer}>
                 Visualizar dados
             </button>
             <button onClick={props.onFinalize}>
