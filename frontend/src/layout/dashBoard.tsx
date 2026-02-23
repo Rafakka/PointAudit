@@ -123,31 +123,34 @@ function SideBar(props:{
 }){
     const fileInputRef = useRef<HTMLInputElement>(null)
     return (
-        <aside className="w-64 bg-white border-1 flex flex-col p-4">
-            <input
-            ref={fileInputRef}
-            type="file" 
-            accept="applcation/pdf"
-            id="pdfinput"
-            style={{display:"none"}}
-            onChange={(e) =>
-                {
-                const file = e.target.files?.[0]
-                if(file) props.onUpload(file)
-                }
-            } 
-            />
-            <button onClick={props.onHandleViewer}>
-                Visualizar dados
-            </button>
-            <button onClick={props.onFinalize}>
-                Finalizar
-            </button>
-            <button onClick={props.onClear}>
-                Excluir Arquivo
-            </button>
-        </aside>
-    )
+    <aside className="w-64 bg-white border-1 flex flex-col p-4 gap-3">
+    <input
+    ref={fileInputRef}
+    type="file"
+    accept="application/pdf"
+    style={{ display: "none" }}
+    onChange={(e) => {
+      const file = e.target.files?.[0]
+      if (file) props.onUpload(file)
+    }}
+    />
+  <button onClick={() => fileInputRef.current?.click()}>
+    Carregar PDF
+  </button>
+  <button onClick={props.onHandleViewer}>
+    Visualizar dados
+  </button>
+  <button onClick={props.onConfirm}>
+    Confirmar
+  </button>
+  <button onClick={props.onFinalize}>
+    Finalizar
+  </button>
+  <button onClick={props.onClear}>
+    Excluir Arquivo
+  </button>
+    </aside>
+)
 }
 
 function MainArea({phase, loading, error}:MainAreaProps){
