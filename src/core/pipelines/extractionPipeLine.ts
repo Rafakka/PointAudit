@@ -1,5 +1,4 @@
 import path from 'path'
-import { loadPdfText } from "../../../tests/helpers/loadPdfText"
 import { normalize } from "../../parser/basic"
 import { extractData } from "../../parser/dataUserParser"
 import { buildTimeSheet } from "../../parser/timeSheetFormatter"
@@ -7,12 +6,13 @@ import { formatUserData } from "../../parser/dataUserFormatter"
 import { savePersonalJson } from "../fileManagement/personalJson"
 import { saveTimeSheetJson } from "../fileManagement/timeSheetJson"
 import { writeState } from "../state/state"
+import { extrairDadosPonto } from '../../parser/commonPdfParser'
 
 export async function runExtraction(
     jobDir:string, 
 ) {
 
-    const rawText = await loadPdfText(jobDir)
+    const rawText = await extrairDadosPonto(jobDir)
     const normalized = normalize(rawText)
 
     const personal = extractData(normalized)

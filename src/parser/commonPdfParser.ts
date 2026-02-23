@@ -3,10 +3,8 @@ import { PDFParse } from 'pdf-parse';
 import { normalize } from './basic';
 
 export async function extrairDadosPonto(caminhoPdf:string) {
-    if (!fs.existsSync(caminhoPdf))
-    {
-        console.error("Arquivo não encontrado");
-        return;
+    if (!fs.existsSync(caminhoPdf)) {
+    throw new Error("Arquivo não encontrado")
     }
 
     const buffer = fs.readFileSync(caminhoPdf)
