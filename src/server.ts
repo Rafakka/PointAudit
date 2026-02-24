@@ -8,6 +8,8 @@ import { RunBasicPipeLine, runFinalization } from './core/pipelines/basicPipeLin
 import { writeState, readState } from './core/state/state';
 import { loadPersonalJson, savePersonalJson } from './core/fileManagement/personalJson';
 import { loadTimeSheetJson, saveTimeSheetJson } from './core/fileManagement/timeSheetJson';
+import { getJobBalance } from "./core/services/balanceServices";
+
 
 const app = express();
 
@@ -129,4 +131,17 @@ app.post("/pipeline/cancel", async(req, res)=>{
     const {jobDir}= req.body
     writeState(jobDir,'cancelled')
     res.json({phase:"cancelled"})
+})
+
+app.get("/jobs/:jobId/balance", async (req, res) => {
+  try {
+    const { jobId } = req.params
+
+    const result = await getJobBalance(jobId)
+
+    res.json(result)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Failed to calculate balance" })
+  }
 })

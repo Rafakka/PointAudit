@@ -213,8 +213,8 @@ function MainArea({
 }: MainAreaProps) {
 
   const canEdit = phase === "extracted"
+  const balance = calculateTimeBank( extractedData.timesheet.days, defaultTimeRules)
 
-  // ---- Early returns (clean mental model) ----
   if (loading) {
     return (
       <main className="flex-1 flex items-center justify-center">
@@ -239,7 +239,6 @@ function MainArea({
     )
   }
 
-  // ---- Normal render ----
   return (
     <main className="flex-1 flex flex-col">
 
@@ -251,62 +250,149 @@ function MainArea({
             onClick={() => setEditMode(prev => !prev)}
             className="px-3 py-1 bg-gray-200 rounded"
           >
-            {editMode ? "Cancelar edição" : "Editar dados"}
+            {editMode ? "Cancelar edição" : "Editar ponto"}
           </button>
         )}
       </header>
 
-      <section className="flex-1 p-6 grid grid-cols-2 gap-6">
+      <section className="flex-1 p-6">
 
-        {/* ---------- Personal Data ---------- */}
-        <div className="bg-white rounded shadow p-4 overflow-auto">
-          <h2 className="font-semibold mb-4 text-gray-700">
-            Dados do Funcionário
-          </h2>
-
-          <div className="flex items-center gap-2">
-            <strong>Nome:</strong>
-
-            {editMode ? (
-              <input
-                value={extractedData.person.name}
-                onChange={(e) =>
-                  setExtractedData(prev => {
-                    if (!prev) return prev
-                    return {
-                      ...prev,
-                      person: {
-                        ...prev.person,
-                        name: e.target.value
-                      }
-                    }
-                  })
-                }
-                className="border rounded px-2 py-1 text-sm"
-              />
-            ) : (
-              <span>{extractedData.person.name}</span>
-            )}
-          </div>
-        </div>
-
-        {/* ---------- Timesheet ---------- */}
         <div className="bg-white rounded shadow p-4 overflow-auto">
           <h2 className="font-semibold mb-4 text-gray-700">
             Registros de Ponto
           </h2>
 
-          <div className="space-y-2 text-sm">
+          <div className="space-y-4 text-sm">
             {Object.entries(extractedData.timesheet.days).map(
               ([key, day]) => (
-                <div key={key} className="border-b pb-2">
-                  <div><strong>Data:</strong> {day.date}</div>
-                  <div><strong>Semana:</strong> {day.weekday}</div>
-                  <div><strong>Observação:</strong> {day.observacao}</div>
+                <div key={key} className="border-b pb-4">
+
+  <div><strong>Data:</strong> {day.date}</div>
+  <div><strong>Semana:</strong> {day.weekday}</div>
+
+  {/* Observação */}
+  <div className="mt-2">
+    <strong>Observação:</strong>
+
+    {editMode ? (
+      <input
+        value={day.observacao}
+        onChange={(e) => {
+          const newValue = e.target.value
+
+          setExtractedData(prev => {
+            if (!prev) return prev
+
+            return {
+              ...prev,
+              timesheet: {
+                ...prev.timesheet,
+                days: {
+                  ...prev.timesheet.days,
+                  [key]: {
+                    ...prev.timesheet.days[key],
+                    observacao: newValue
+                  }
+                }
+              }
+            }
+          })
+        }}
+        className="border rounded px-2 py-1 ml-2"
+      />
+    ) : (
+      <span className="ml-2">{day.observacao}</span>
+    )}
+  </div>
+
+  {/* Realizado */}
+  <div className="mt-3">
+    <strong>Realizado:</strong>
+
+    <div className="flex flex-wrap gap-4 mt-2">
+      {day.realizado.map((time, index) => (
+        <div key={index} className="flex items-center gap-1">
+
+          {editMode ? (
+            <>
+              <input
+                type="number"
+                value={time.h}
+                onChange={(e) => {
+                  const newHour = Number(e.target.value)
+
+                  setExtractedData(prev => {
+                    if (!prev) return prev
+
+                    const updatedDay = {
+                      ...prev.timesheet.days[key],
+                      realizado: prev.timesheet.days[key].realizado.map((t, i) =>
+                        i === index ? { ...t, h: newHour } : t
+                      )
+                    }
+
+                    return {
+                      ...prev,
+                      timesheet: {
+                        ...prev.timesheet,
+                        days: {
+                          ...prev.timesheet.days,
+                          [key]: updatedDay
+                        }
+                      }
+                    }
+                  })
+                }}
+                            className="w-14 border rounded px-1"
+                          />
+
+                          <span>:</span>
+
+                          <input
+                            type="number"
+                            value={time.m}
+                            onChange={(e) => {
+                              const newMin = Number(e.target.value)
+
+                              setExtractedData(prev => {
+                                if (!prev) return prev
+
+                                const updatedDay = {
+                                  ...prev.timesheet.days[key],
+                                  realizado: prev.timesheet.days[key].realizado.map((t, i) =>
+                                    i === index ? { ...t, m: newMin } : t
+                                  )
+                                }
+
+                                return {
+                                  ...prev,
+                                  timesheet: {
+                                    ...prev.timesheet,
+                                    days: {
+                                      ...prev.timesheet.days,
+                                      [key]: updatedDay
+                                    }
+                                  }
+                                }
+                              })
+                            }}
+                            className="w-14 border rounded px-1"
+                          />
+                        </>
+                      ) : (
+                        <span>{time.h.toString().padStart(2, "0")}:{time.m.toString().padStart(2, "0")}</span>
+                      )}
+
+                    </div>
+                  ))}
                 </div>
+              </div>
+
+            </div>
               )
             )}
           </div>
+
         </div>
 
       </section>
