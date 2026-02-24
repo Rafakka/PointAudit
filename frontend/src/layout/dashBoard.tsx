@@ -7,14 +7,14 @@ import { getExtractedData } from "../api/jobs"
 import EmptyState from "./mainPanel/emptyState"
 import { useRef } from "react"
 import { Upload, Eye, CheckCircle, Rocket, Trash2 } from "lucide-react"
-import type { Phase, ExtractedData, TimeSheetData, TimeEntry, PersonalData, PersonalMeta } from "../types/pipeline"
+import type { Phase, JoinedUserContext} from "../types/pipeline"
 
 type MainAreaProps = {
   phase: Phase | null
   loading: boolean
   error: string | null
-  extractedData: ExtractedData | null
-  setExtractedData: React.Dispatch<React.SetStateAction<ExtractedData | null>>
+  extractedData: JoinedUserContext | null
+  setExtractedData: React.Dispatch<React.SetStateAction<JoinedUserContext | null>>
   editMode: boolean
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -25,7 +25,7 @@ export default function DashBoard(){
     const [phase, setPhase] = useState<Phase | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [extractedData, setExtractedData] = useState<ExtractedData | null>(null)
+    const [extractedData, setExtractedData] = useState<JoinedUserContext| null>(null)
     const [editMode, setEditMode] = useState(false)
 
     async function handleUpload(file:File){
@@ -54,12 +54,7 @@ export default function DashBoard(){
             setError(null)
 
             const result = await getExtractedData(jobDir)
-
-            setPhase(result.phase)
-            setExtractedData({
-                personal: result.personalData,
-                timesheet: result.timeData
-            })
+            setExtractedData(result)
 
         }catch(err:any){
             setError(err.message)
@@ -207,75 +202,114 @@ function SideBar(props:{
 )
 }
 
-function MainArea({phase, loading, error, extractedData, editMode, setEditMode, setExtractedData}:MainAreaProps){
-    const canEdit = phase === "extracted"
+function MainArea({
+  phase,
+  loading,
+  extractedData,
+  editMode,
+  setEditMode,
+  setExtractedData,
+  error
+}: MainAreaProps) {
+
+  const canEdit = phase === "extracted"
+
+  // ---- Early returns (clean mental model) ----
+  if (loading) {
     return (
-        <main className="flex-1 flex flex-col">
-            <header className="h-12 bg-white border-b flex items-center px-4">
-                <img src="/logo.png" className="w-5 h-5 opacity-60"/>
-                {canEdit && (
-                <button
-                    onClick={() => setEditMode(!editMode)}
-                    className="mb-4 px-3 py-1 bg-gray-200 rounded"
-                >
-                    {editMode ? "Cancelar edição" : "Editar dados"}
-                </button>
-            )}
-            </header>
-            <section className="flex-1 flex items-center justify-center p-6">
-                {!loading && extractedData && (
-                <div className="w-full h-full p-6 grid grid-cols-2 gap-6">
-
-                    {/* Personal Data */}
-                    <div className="bg-white rounded shadow p-4 overflow-auto">
-                    <h2 className="font-semibold mb-4 text-gray-700">
-                        Dados do Funcionário
-                    </h2>
-
-                    <div className="flex items-center gap-2">
-                    <strong>Nome:</strong>
-                    {editMode ? (
-                        <input
-                        value={extractedData.personal.meta.nome || ""}
-                        onChange={(e) =>
-                            setExtractedData(prev => ({
-                            ...prev!,
-                            personal: {
-                                ...prev!.personal,
-                                meta: {
-                                ...prev!.personal.meta,
-                                nome: e.target.value
-                                }
-                            }
-                            }))
-                        }
-                        className="border rounded px-2 py-1 text-sm"
-                        />
-                    ) : (
-                        <span>{extractedData.personal.meta.nome}</span>
-                    )}
-                    </div>
-                    </div>
-
-                    {/* Timesheet */}
-                    <div className="bg-white rounded shadow p-4 overflow-auto">
-                    <h2 className="font-semibold mb-4 text-gray-700">
-                        Registros de Ponto
-                    </h2>
-
-                    <div className="space-y-2 text-sm">
-                        {extractedData.timesheet.dias.map((dia:any, index:number)=>(
-                        <div key={index} className="border-b pb-2">
-                            <div><strong>Data:</strong> {dia.data}</div>
-                            <div><strong>Horas:</strong> {dia.horas}</div>
-                        </div>
-                        ))}
-                    </div>
-                    </div>
-
-                </div>
-                )}
-                </section>
-        </main>
+      <main className="flex-1 flex items-center justify-center">
+        <span className="text-gray-500">Carregando...</span>
+      </main>
     )
+  }
+
+  if (error) {
+    return (
+      <main className="flex-1 flex items-center justify-center">
+        <span className="text-red-500">{error}</span>
+      </main>
+    )
+  }
+
+  if (!extractedData) {
+    return (
+      <main className="flex-1 flex items-center justify-center">
+        <EmptyState />
+      </main>
+    )
+  }
+
+  // ---- Normal render ----
+  return (
+    <main className="flex-1 flex flex-col">
+
+      <header className="h-12 bg-white border-b flex items-center justify-between px-4">
+        <img src="/logo.png" className="w-5 h-5 opacity-60" />
+
+        {canEdit && (
+          <button
+            onClick={() => setEditMode(prev => !prev)}
+            className="px-3 py-1 bg-gray-200 rounded"
+          >
+            {editMode ? "Cancelar edição" : "Editar dados"}
+          </button>
+        )}
+      </header>
+
+      <section className="flex-1 p-6 grid grid-cols-2 gap-6">
+
+        {/* ---------- Personal Data ---------- */}
+        <div className="bg-white rounded shadow p-4 overflow-auto">
+          <h2 className="font-semibold mb-4 text-gray-700">
+            Dados do Funcionário
+          </h2>
+
+          <div className="flex items-center gap-2">
+            <strong>Nome:</strong>
+
+            {editMode ? (
+              <input
+                value={extractedData.person.name}
+                onChange={(e) =>
+                  setExtractedData(prev => {
+                    if (!prev) return prev
+                    return {
+                      ...prev,
+                      person: {
+                        ...prev.person,
+                        name: e.target.value
+                      }
+                    }
+                  })
+                }
+                className="border rounded px-2 py-1 text-sm"
+              />
+            ) : (
+              <span>{extractedData.person.name}</span>
+            )}
+          </div>
+        </div>
+
+        {/* ---------- Timesheet ---------- */}
+        <div className="bg-white rounded shadow p-4 overflow-auto">
+          <h2 className="font-semibold mb-4 text-gray-700">
+            Registros de Ponto
+          </h2>
+
+          <div className="space-y-2 text-sm">
+            {Object.entries(extractedData.timesheet.days).map(
+              ([key, day]) => (
+                <div key={key} className="border-b pb-2">
+                  <div><strong>Data:</strong> {day.date}</div>
+                  <div><strong>Semana:</strong> {day.weekday}</div>
+                  <div><strong>Observação:</strong> {day.observacao}</div>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+
+      </section>
+    </main>
+  )
 }

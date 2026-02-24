@@ -1,3 +1,4 @@
+import type { JoinedUserContext } from "../types/pipeline";
 import { API_BASE } from "./client";
 
 export async function getJobState(jobDir:string) {
@@ -7,9 +8,8 @@ export async function getJobState(jobDir:string) {
         return res.json()
 }
 
-export async function getExtractedData(jobDir:string) {
+export async function getExtractedData(jobDir:string): Promise<JoinedUserContext>{
     const res = await fetch(`${API_BASE}/jobs/${jobDir}/extracted`)    
-    
     if(!res.ok) throw new Error("Failed to load extracted data")
         return res.json()
 }
@@ -31,3 +31,4 @@ export async function finalizeJob(jobDir:string) {
     if(!res.ok) throw new Error("Failed to finalize job")
         return res.json()
 }
+ 
