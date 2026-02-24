@@ -6,8 +6,8 @@ import { inputHandler } from "./core/fileManagement/inputHandler";
 import { safeDelete } from "./utils/removerManager";
 import { RunBasicPipeLine, runFinalization } from './core/pipelines/basicPipeLine';
 import { writeState, readState } from './core/state/state';
-import { loadPersonalJson } from './core/fileManagement/personalJson';
-import { loadTimeSheetJson } from './core/fileManagement/timeSheetJson';
+import { loadPersonalJson, savePersonalJson } from './core/fileManagement/personalJson';
+import { loadTimeSheetJson, saveTimeSheetJson } from './core/fileManagement/timeSheetJson';
 
 const app = express();
 
@@ -100,6 +100,20 @@ app.post("/jobs/:jobDir/finalize",async (req, res)=>{
             error:err.message,
         })
     }
+})
+
+app.put("/jobs/:jobDir/audit", async (req, res) => {
+  try {
+    const { jobDir } = req.params
+    const { personal, timesheet } = req.body
+
+    savePersonalJson(personal, jobDir)
+    saveTimeSheetJson(timesheet, jobDir)
+
+    return res.json({ phase: "extracted" })
+  } catch (err:any) {
+    return res.status(400).json({ error: err.message })
+  }
 })
 
 app.delete
