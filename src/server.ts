@@ -29,7 +29,6 @@ app.post(
     async (req, res) => {
         try{
             const result = await inputHandler(req)
-
             const jobId = path.basename(result.jobDir)
 
             return res.json({
@@ -44,9 +43,12 @@ app.post(
     }
 );
 
-app.get ("/jobs/:jobDir/state",(req, res)=>{
+app.get ("/jobs/:jobId/state",(req, res)=>{
     try {
-        const {jobDir} = req.params
+        
+        const {jobId} = req.params
+        const jobDir = path.basename("input",jobId)
+
         const state = readState(jobDir)
 
         if(!state) {
@@ -62,7 +64,7 @@ app.get ("/jobs/:jobDir/state",(req, res)=>{
 app.get("jobs/:jobId/extracted", async (req, res)=>{
     try {
         const {jobId} = req.params
-        const jobDir = path.join(INPUT_ROOT,jobId)
+        const jobDir = path.basename("input",jobId)
         const state = readState(jobDir)
 
         if(!state || state.phase !== "extracted") {
@@ -79,10 +81,11 @@ app.get("jobs/:jobId/extracted", async (req, res)=>{
 })
 
 
-app.post("/jobs/:jobDir/confirm", async (req, res) => {
+app.post("/jobs/:jobId/confirm", async (req, res) => {
     try{
-        const { jobDir } = req.params
 
+        const {jobId} = req.params
+        const jobDir = path.basename("input",jobId)
         const state = readState(jobDir)
 
         if(!state || state.phase !== "extracted") {
@@ -99,9 +102,10 @@ app.post("/jobs/:jobDir/confirm", async (req, res) => {
     }
 })
 
-app.post("/jobs/:jobDir/finalize",async (req, res)=>{
+app.post("/jobs/:jobId/finalize",async (req, res)=>{
     try {
-        const { jobDir } = req.params
+        const {jobId} = req.params
+        const jobDir = path.basename("input",jobId)
         const result = await runFinalization(jobDir)
         return res.json(result)
 
@@ -112,9 +116,10 @@ app.post("/jobs/:jobDir/finalize",async (req, res)=>{
     }
 })
 
-app.put("/jobs/:jobDir/audit", async (req, res) => {
+app.put("/jobs/:jobId/audit", async (req, res) => {
   try {
-    const { jobDir } = req.params
+    const {jobId} = req.params
+    const jobDir = path.basename("input",jobId)
     const { personal, timesheet } = req.body
 
     savePersonalJson(personal, jobDir)
