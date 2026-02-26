@@ -16,7 +16,7 @@ export interface PipeLineState {
 
 
 export function InitState(jobDir:string) {
-    const statePath = path.join(jobDir,".state.json")
+    const statePath = path.join(jobDir,"state.json")
 
     if (fs.existsSync(statePath)) return
 

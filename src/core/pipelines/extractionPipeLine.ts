@@ -1,4 +1,5 @@
 import path from 'path'
+import fs from 'fs'
 import { normalize } from "../../parser/basic"
 import { extractData } from "../../parser/dataUserParser"
 import { buildTimeSheet } from "../../parser/timeSheetFormatter"
@@ -12,8 +13,17 @@ export async function runExtraction(
     jobDir:string, 
 ) {
 
-    const rawText = await extrairDadosPonto(jobDir)
-    const normalized = normalize(rawText)
+    const files = fs.readdirSync(jobDir)
+    const pdfFile = files.find(f=>f.toLocaleLowerCase().endsWith(".pdf"))
+    
+    if (!pdfFile){
+        throw new Error("No pdf found inside test/input")
+    }
+
+    const pdfPath = path.join(jobDir, pdfFile)
+
+    const result = await extrairDadosPonto(pdfPath)
+    const normalized = normalize(result)
 
     const personal = extractData(normalized)
     const timesheet = buildTimeSheet(normalized)
