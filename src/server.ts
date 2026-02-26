@@ -11,14 +11,14 @@ import { loadPersonalJson, savePersonalJson } from './core/fileManagement/person
 import { loadTimeSheetJson, saveTimeSheetJson } from './core/fileManagement/timeSheetJson';
 import { getJobBalance } from "./core/services/balanceServices";
 
+const INPUT_ROOT = path.resolve("input")
+
 const app = express();
 
 app.use(cors())
 app.use(express.json())
 
 const upload = multer({dest:"tmp/"})
-
-const INPUT_ROOT = path.resolve("input")
 
 app.listen(8000, ()=>{
     console.log("Backend running on http://localhost:8000")
@@ -31,10 +31,6 @@ app.post(
         try{
             const result = await inputHandler(req)
             const jobId = path.basename(result.jobDir)
-
-            if(!jobId.startsWith("job-")){
-            return res.status(400).json({error:"invalid job id"})
-            }
 
             return res.json({
                 jobId,
@@ -69,22 +65,29 @@ app.get ("/jobs/:jobId/state",(req, res)=>{
         }
     })
 
-app.get("jobs/:jobId/extracted", async (req, res)=>{
+app.get("/jobs/:jobId/extracted", async (req, res)=>{
     try {
-        const {jobId} = req.params
 
-        if(!jobId.startsWith("job-")){
+        const raw = req.params.jobId
+
+        if (typeof raw!=="string" || !raw.startsWith("job-")){
             return res.status(400).json({error:"invalid job id"})
         }
 
-        const state = readState(INPUT_ROOT)
+        const jobId = raw
+        
+        const jobDir =path.join(INPUT_ROOT,jobId)
+
+        await RunBasicPipeLine(jobDir)
+
+        const state = readState(jobDir)
 
         if(!state || state.phase !== "extracted") {
             throw new Error("job not in extracted phase")
         }
 
-        const personal = await loadPersonalJson(INPUT_ROOT)
-        const timesheet = await loadTimeSheetJson(INPUT_ROOT)
+        const personal = await loadPersonalJson(jobDir)
+        const timesheet = await loadTimeSheetJson(jobDir)
 
         return res.json({personal, timesheet})
     } catch(err:any) {
