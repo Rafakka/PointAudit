@@ -3,7 +3,7 @@ import { InitState } from "../state/state";
 import fs from 'fs'
 import path from 'path'
 
-export async function inputHandler(req:Request): Promise <{jobDir:string; phase:"ingested"}> {
+export async function inputHandler(req:Request): Promise <{jobId:string; phase:"ingested"}> {
     
     if(!req.file) {
         throw new Error ("no file uploaded")
@@ -21,8 +21,10 @@ export async function inputHandler(req:Request): Promise <{jobDir:string; phase:
 
     fs.unlinkSync(req.file.path)
 
+    const jobId = path.basename(jobDir)
+
     return {        
-        jobDir,
+        jobId,
         phase:"ingested"
     }
 }

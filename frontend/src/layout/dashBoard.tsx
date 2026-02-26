@@ -54,6 +54,7 @@ export default function DashBoard(){
             setError(null)
 
             const result = await getExtractedData(jobId)
+            console.log("EXTRACTED data",result)
             setExtractedData(result)
 
         }catch(err:any){
@@ -262,7 +263,7 @@ function MainArea({
           </h2>
 
           <div className="space-y-4 text-sm">
-            {Object.entries(extractedData.timesheet.days).map(
+            {Object.entries(extractedData.timesheet.dias).map(
               ([key, day]) => (
                 <div key={key} className="border-b pb-4">
 
@@ -287,9 +288,9 @@ function MainArea({
               timesheet: {
                 ...prev.timesheet,
                 days: {
-                  ...prev.timesheet.days,
+                  ...prev.timesheet.dias,
                   [key]: {
-                    ...prev.timesheet.days[key],
+                    ...prev.timesheet.dias[key],
                     observacao: newValue
                   }
                 }
@@ -324,8 +325,8 @@ function MainArea({
                     if (!prev) return prev
 
                     const updatedDay = {
-                      ...prev.timesheet.days[key],
-                      realizado: prev.timesheet.days[key].realizado.map((t, i) =>
+                      ...prev.timesheet.dias[key],
+                      realizado: prev.timesheet.dias[key].realizado.map((t, i) =>
                         i === index ? { ...t, h: newHour } : t
                       )
                     }
@@ -335,7 +336,7 @@ function MainArea({
                       timesheet: {
                         ...prev.timesheet,
                         days: {
-                          ...prev.timesheet.days,
+                          ...prev.timesheet.dias,
                           [key]: updatedDay
                         }
                       }
@@ -357,8 +358,8 @@ function MainArea({
                                 if (!prev) return prev
 
                                 const updatedDay = {
-                                  ...prev.timesheet.days[key],
-                                  realizado: prev.timesheet.days[key].realizado.map((t, i) =>
+                                  ...prev.timesheet.dias[key],
+                                  realizado: prev.timesheet.dias[key].realizado.map((t, i) =>
                                     i === index ? { ...t, m: newMin } : t
                                   )
                                 }
@@ -368,7 +369,7 @@ function MainArea({
                                   timesheet: {
                                     ...prev.timesheet,
                                     days: {
-                                      ...prev.timesheet.days,
+                                      ...prev.timesheet.dias,
                                       [key]: updatedDay
                                     }
                                   }

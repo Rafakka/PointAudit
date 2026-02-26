@@ -10,7 +10,10 @@ export async function getJobState(jobId:string) {
 
 export async function getExtractedData(jobId:string): Promise<JoinedUserContext>{
     const res = await fetch(`${API_BASE}/jobs/${jobId}/extracted`)    
-    if(!res.ok) throw new Error("Failed to load extracted data")
+    if(!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Failed to load extracted data")
+    }
         return res.json()
 }
 

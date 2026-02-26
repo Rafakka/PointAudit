@@ -30,10 +30,9 @@ app.post(
     async (req, res) => {
         try{
             const result = await inputHandler(req)
-            const jobId = path.basename(result.jobDir)
 
             return res.json({
-                jobId,
+                jobId:result.jobId,
                 phase:result.phase,
             })
         } catch (err:any) {

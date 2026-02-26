@@ -56,7 +56,7 @@ export interface JoinedUserContext {
         company?:string
     }
     timesheet : {
-        days:Record<string,
+        dias:Record<string,
         {
             date:string
             weekday:string
