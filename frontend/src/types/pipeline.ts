@@ -1,3 +1,5 @@
+
+
 export type PersonalMeta = {
   nome: string
   userId: string
@@ -72,3 +74,8 @@ export type Phase =
 | "extracted"
 | "confirmed"
 | "finalized"
+
+export type uploadResponse = {
+    jobId: string
+    phase: Phase
+}

@@ -21,14 +21,14 @@ type MainAreaProps = {
 
 export default function DashBoard(){
 
-    const [jobDir, setJobDir] = useState<string | null>(null)
+    const [jobId, setJobId] = useState<string | null>(null)
     const [phase, setPhase] = useState<Phase | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [extractedData, setExtractedData] = useState<JoinedUserContext| null>(null)
     const [editMode, setEditMode] = useState(false)
 
-    async function handleUpload(file:File){
+    async function handleUpload(file:File):Promise<void>{
         console.log("UPLOADED TRIGGERED",file)
         try{
             setLoading(true)
@@ -36,7 +36,7 @@ export default function DashBoard(){
 
             const result = await uploadPdf(file)
 
-            setJobDir(result.jobDir)
+            setJobId(result.jobId)
             setPhase(result.phase)
 
         }catch(err:any){
@@ -47,13 +47,13 @@ export default function DashBoard(){
     }
 
     async function handleViewer(){
-        if(!jobDir) return
+        if(!jobId) return
 
         try{
             setLoading(true)
             setError(null)
 
-            const result = await getExtractedData(jobDir)
+            const result = await getExtractedData(jobId)
             setExtractedData(result)
 
         }catch(err:any){
@@ -64,10 +64,10 @@ export default function DashBoard(){
     }
 
     async function handleConfirm(){
-        if(!jobDir)return
+        if(!jobId)return
         try {
             setLoading(true)
-            const result = await confirmJob(jobDir)
+            const result = await confirmJob(jobId)
             setPhase(result.phase)}catch(err:any){
                 setError(err.message)
             } finally {
@@ -76,10 +76,10 @@ export default function DashBoard(){
         }
 
     async function handleFinalize() {
-        if(!jobDir)return
+        if(!jobId)return
         try{
         setLoading(true)
-        const result = await finalizeJob(jobDir)
+        const result = await finalizeJob(jobId)
         setPhase(result.phase)
         } catch (err:any) {
             setError(err.message)
@@ -91,7 +91,7 @@ export default function DashBoard(){
 
     async function handleClear() {
         await clearInput()
-        setJobDir(null)
+        setJobId(null)
         setPhase(null)
         setExtractedData(null)
         setEditMode(false)

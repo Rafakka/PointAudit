@@ -2,6 +2,7 @@ import cors from "cors"
 import fs from 'fs'
 import express from "express";
 import multer from "multer";
+import path from 'path'
 import { inputHandler } from "./core/fileManagement/inputHandler";
 import { safeDelete } from "./utils/removerManager";
 import { RunBasicPipeLine, runFinalization } from './core/pipelines/basicPipeLine';
@@ -28,7 +29,13 @@ app.post(
     async (req, res) => {
         try{
             const result = await inputHandler(req)
-            return res.json(result)
+
+            const jobId = path.basename(result.jobDir)
+
+            return res.json({
+                jobId,
+                phase:result.phase,
+            })
         } catch (err:any) {
             return res.status(400).json({
                 error:err.message
@@ -52,9 +59,10 @@ app.get ("/jobs/:jobDir/state",(req, res)=>{
         }
     })
 
-app.get("jobs/:jobDir/extracted", async (req, res)=>{
+app.get("jobs/:jobId/extracted", async (req, res)=>{
     try {
-        const {jobDir} = req.params
+        const {jobId} = req.params
+        const jobDir = path.join(INPUT_ROOT,jobId)
         const state = readState(jobDir)
 
         if(!state || state.phase !== "extracted") {

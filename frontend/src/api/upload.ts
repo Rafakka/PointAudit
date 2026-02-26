@@ -1,6 +1,7 @@
 import { API_BASE } from "./client"
+import type { uploadResponse } from "../types/pipeline"
 
-export async function uploadPdf(file:File){
+export async function uploadPdf(file:File):Promise<uploadResponse>{
     const fromData = new FormData()
     fromData.append("file", file)
 
@@ -13,9 +14,5 @@ export async function uploadPdf(file:File){
         throw new Error("Upload failed")
     }
 
-    return res.json() as Promise<{
-        jobDir:string
-        phase:"ingested"
-        status:"queued"
-    }>
-}
+    return res.json() 
+    }

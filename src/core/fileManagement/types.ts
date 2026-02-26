@@ -1,3 +1,8 @@
+export type Phase =
+| "ingested"
+| "extracted"
+| "confirmed"
+| "finalized"
 
 export interface PersonalData {
     meta : {
@@ -92,3 +97,7 @@ export type JsonArtifact = {
     updatedAt:number
 }
 
+export type uploadResponse = {
+    jobId: string
+    phase: Phase
+}

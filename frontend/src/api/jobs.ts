@@ -1,21 +1,21 @@
 import type { JoinedUserContext } from "../types/pipeline";
 import { API_BASE } from "./client";
 
-export async function getJobState(jobDir:string) {
-    const res = await fetch(`${API_BASE}/jobs/${jobDir}/state`)
+export async function getJobState(jobId:string) {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/state`)
     
     if(!res.ok) throw new Error("Failed to load state")
         return res.json()
 }
 
-export async function getExtractedData(jobDir:string): Promise<JoinedUserContext>{
-    const res = await fetch(`${API_BASE}/jobs/${jobDir}/extracted`)    
+export async function getExtractedData(jobId:string): Promise<JoinedUserContext>{
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/extracted`)    
     if(!res.ok) throw new Error("Failed to load extracted data")
         return res.json()
 }
 
-export async function confirmJob(jobDir:string) {
-    const res = await fetch(`${API_BASE}/jobs/${jobDir}/confirm`,{
+export async function confirmJob(jobId:string) {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/confirm`,{
         method:"POST",
     })
 
@@ -23,8 +23,8 @@ export async function confirmJob(jobDir:string) {
         return res.json()
 }
 
-export async function finalizeJob(jobDir:string) {
-    const res = await fetch(`${API_BASE}/jobs/${jobDir}/finalize`,{
+export async function finalizeJob(jobId:string) {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/finalize`,{
         method:"POST",
     })
 
