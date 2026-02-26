@@ -148,9 +148,9 @@ app.post("/pipeline/cancel", async(req, res)=>{
 
 app.get("/jobs/:jobId/balance", async (req, res) => {
   try {
-    const { jobId } = req.params
-
-    const result = await getJobBalance(jobId)
+    const {jobId} = req.params
+    const jobDir = path.basename("input",jobId)
+    const result = await getJobBalance(jobDir)
 
     res.json(result)
   } catch (error) {
