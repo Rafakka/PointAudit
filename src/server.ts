@@ -32,6 +32,10 @@ app.post(
             const result = await inputHandler(req)
             const jobId = path.basename(result.jobDir)
 
+            if(!jobId.startsWith("job-")){
+            return res.status(400).json({error:"invalid job id"})
+            }
+
             return res.json({
                 jobId,
                 phase:result.phase,
@@ -49,6 +53,10 @@ app.get ("/jobs/:jobId/state",(req, res)=>{
         
         const {jobId} = req.params
 
+        if(!jobId.startsWith("job-")){
+            return res.status(400).json({error:"invalid job id"})
+        }
+
         const state = readState(INPUT_ROOT)
 
         if(!state) {
@@ -64,6 +72,11 @@ app.get ("/jobs/:jobId/state",(req, res)=>{
 app.get("jobs/:jobId/extracted", async (req, res)=>{
     try {
         const {jobId} = req.params
+
+        if(!jobId.startsWith("job-")){
+            return res.status(400).json({error:"invalid job id"})
+        }
+
         const state = readState(INPUT_ROOT)
 
         if(!state || state.phase !== "extracted") {
@@ -84,6 +97,10 @@ app.post("/jobs/:jobId/confirm", async (req, res) => {
     try{
 
         const {jobId} = req.params
+
+        if(!jobId.startsWith("job-")){
+            return res.status(400).json({error:"invalid job id"})
+        }
         const state = readState(INPUT_ROOT)
 
         if(!state || state.phase !== "extracted") {
@@ -103,6 +120,9 @@ app.post("/jobs/:jobId/confirm", async (req, res) => {
 app.post("/jobs/:jobId/finalize",async (req, res)=>{
     try {
         const {jobId} = req.params
+        if(!jobId.startsWith("job-")){
+            return res.status(400).json({error:"invalid job id"})
+        }
         const result = await runFinalization(INPUT_ROOT)
         return res.json(result)
 
@@ -115,6 +135,11 @@ app.post("/jobs/:jobId/finalize",async (req, res)=>{
 
 app.put("/jobs/:jobId/audit", async (req, res) => {
   try {
+    const {jobId} = req.params
+    if(!jobId.startsWith("job-")){
+        return res.status(400).json({error:"invalid job id"})
+    }
+
     const { personal, timesheet } = req.body
 
     savePersonalJson(personal, INPUT_ROOT)
@@ -144,6 +169,9 @@ app.post("/pipeline/cancel", async(req, res)=>{
 app.get("/jobs/:jobId/balance", async (req, res) => {
   try {
     const {jobId} = req.params
+    if(!jobId.startsWith("job-")){
+            return res.status(400).json({error:"invalid job id"})
+    }
     const result = await getJobBalance(INPUT_ROOT)
 
     res.json(result)
