@@ -213,8 +213,7 @@ function MainArea({
 }: MainAreaProps) {
 
   const canEdit = phase === "extracted"
-  const balance = calculateTimeBank( extractedData.timesheet.days, defaultTimeRules)
-
+  
   if (loading) {
     return (
       <main className="flex-1 flex items-center justify-center">
