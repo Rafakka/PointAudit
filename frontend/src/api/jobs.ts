@@ -1,4 +1,4 @@
-import type { JoinedUserContext } from "../types/pipeline";
+import type { ExtractedResponse } from "../types/pipeline";
 import { API_BASE } from "./client";
 
 export async function getJobState(jobId:string) {
@@ -8,7 +8,7 @@ export async function getJobState(jobId:string) {
         return res.json()
 }
 
-export async function getExtractedData(jobId:string): Promise<JoinedUserContext>{
+export async function getExtractedData(jobId:string): Promise<ExtractedResponse>{
     const res = await fetch(`${API_BASE}/jobs/${jobId}/extracted`)    
     if(!res.ok) {
         const err = await res.json()

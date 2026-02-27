@@ -15,6 +15,6 @@ export async function uploadPdf(file:File):Promise<uploadResponse>{
         throw new Error(err.console.error ||
         "Upload failed")
     }
-
+    
     return res.json() 
     }

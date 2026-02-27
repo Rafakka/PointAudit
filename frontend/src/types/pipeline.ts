@@ -40,6 +40,7 @@ export interface DayRecord {
 }
 
 export interface JoinedUserContext {
+    personal :{
     meta:{
         userId:string
         source:string
@@ -47,16 +48,22 @@ export interface JoinedUserContext {
         schemaVersions: {
             personal:number
             timesheet: number
+            }
         }
     }
-    person :{
+    person:{
         name:string
-        emplyeeIdHash:string
+        employeeIdHash:string
         role?:string
         company?:string
-    }
+    } 
     timesheet : {
-        dias:Record<string,
+        meta: {
+            schemaVersion:number
+            extractedAt:String
+        }
+        dias:Record<
+        string,
         {
             date:string
             weekday:string
@@ -78,4 +85,9 @@ export type Phase =
 export type uploadResponse = {
     jobId: string
     phase: Phase
+}
+
+export interface ExtractedResponse {
+    phase: Phase
+    data: JoinedUserContext
 }

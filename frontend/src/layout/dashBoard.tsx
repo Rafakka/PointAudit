@@ -25,17 +25,15 @@ export default function DashBoard(){
     const [phase, setPhase] = useState<Phase | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [extractedData, setExtractedData] = useState<JoinedUserContext| null>(null)
+    const [extractedData, setExtractedData] = useState<JoinedUserContext | null>(null)
     const [editMode, setEditMode] = useState(false)
 
     async function handleUpload(file:File):Promise<void>{
-        console.log("UPLOADED TRIGGERED",file)
         try{
             setLoading(true)
             setError(null)
 
             const result = await uploadPdf(file)
-
             setJobId(result.jobId)
             setPhase(result.phase)
 
@@ -54,8 +52,9 @@ export default function DashBoard(){
             setError(null)
 
             const result = await getExtractedData(jobId)
-            console.log("EXTRACTED data",result)
-            setExtractedData(result)
+            setExtractedData(result.data)
+            setPhase(result.phase)
+            setEditMode(true)
 
         }catch(err:any){
             setError(err.message)
@@ -69,6 +68,7 @@ export default function DashBoard(){
         try {
             setLoading(true)
             const result = await confirmJob(jobId)
+            setEditMode(false)
             setPhase(result.phase)}catch(err:any){
                 setError(err.message)
             } finally {
@@ -82,6 +82,7 @@ export default function DashBoard(){
         setLoading(true)
         const result = await finalizeJob(jobId)
         setPhase(result.phase)
+        setEditMode(false)
         } catch (err:any) {
             setError(err.message)
         } finally {
@@ -91,11 +92,15 @@ export default function DashBoard(){
     }
 
     async function handleClear() {
-        await clearInput()
-        setJobId(null)
-        setPhase(null)
-        setExtractedData(null)
-        setEditMode(false)
+      if(!jobId) return
+
+      await clearInput(jobId)
+
+      setJobId(null)
+      setPhase(null)
+      setExtractedData(null)
+      setEditMode(false)
+
     }
 
     return (
@@ -161,7 +166,7 @@ function SideBar(props:{
   </button>
   <button onClick={props.onHandleViewer}
   disabled={!canView}
-   className={`flex items-center gap-2 px-3 py-2 rounded transition-colors duration-150
+  className={`flex items-center gap-2 px-3 py-2 rounded transition-colors duration-150
   ${canView ? "hover:bg-gray-100 text-gray-800"
             : "text-gray-400 cursor-not-allowed opacity-50 pointer-events-none"}
             `}
