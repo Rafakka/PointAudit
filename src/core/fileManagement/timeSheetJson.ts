@@ -3,15 +3,36 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { PersonalTimeData } from './types'
 
+function normalizePairs(
+    pairs: {h:number, m:number}[] | undefined, required = 4
+) {
+    const safe = pairs ?? []
+    const filled = [...safe]
+
+    while (filled.length < required) {
+        filled.push({h:0, m:0})
+    }
+    return filled.slice(0,required)
+}
 
 export function saveTimeSheetJson(
     data:PersonalTimeData,
     outputDir:string
 ){
+    const normalizedDias = Object.fromEntries(
+    Object.entries(data.dias).map(([date,day]) => [
+            date,
+            {
+                ...day,
+                previsto:normalizePairs(day.previsto),
+                realizado:normalizePairs(day.realizado)
+            }
+        ])
+    )
 
-    const payload:PersonalTimeData = {
+    const payload: PersonalTimeData = {
         meta:data.meta,
-        dias:data.dias
+        dias:normalizedDias
     }
 
     fs.mkdirSync(outputDir,{recursive:true})
@@ -19,19 +40,15 @@ export function saveTimeSheetJson(
     const fileName = `timesheet.json`
     const filePath = path.join(outputDir,fileName)
     const tmpPath = filePath + ".tmp"
-
-    if (fs.existsSync(filePath)) {
-        throw new Error(`Personal.json already exists at ${filePath}`)
-    }
-
     const json = JSON.stringify(payload, null, 2)
 
     fs.writeFileSync(tmpPath, json, "utf-8")
     fs.renameSync(tmpPath, filePath)
 
     return filePath
-
 }
+
+
 
 export async function loadTimeSheetJson(baseDir:string){
 
