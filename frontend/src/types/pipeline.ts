@@ -89,5 +89,20 @@ export type uploadResponse = {
 
 export interface ExtractedResponse {
     phase: Phase
-    data: JoinedUserContext
+    data: {
+        personal: {
+            data:{
+                meta:JoinedUserContext["personal"]["meta"]
+                person:JoinedUserContext["person"]
+            }
+            path:string
+        }
+        timesheet:{
+            data:{
+            meta:JoinedUserContext["timesheet"]["meta"]
+            dias:JoinedUserContext["timesheet"]["dias"]
+            }
+            path:string
+        }
+    }
 }

@@ -8,10 +8,10 @@ const defaultRules: TimeRuleConfig = {
 }
 
 export async function getJobBalance(jobDir: string) {
-  const timesheet = await loadTimeSheetJson(jobDir)
+  const {data:timesheet} = await loadTimeSheetJson(jobDir)
 
   const result = calculateTimeBank(
-    timesheet.days,
+    timesheet.dias,
     defaultRules
   )
 

@@ -9,6 +9,7 @@ import { writeState, readState } from './core/state/state';
 import { loadPersonalJson, savePersonalJson } from './core/fileManagement/personalJson';
 import { loadTimeSheetJson, saveTimeSheetJson } from './core/fileManagement/timeSheetJson';
 import { getJobBalance } from "./core/services/balanceServices";
+import { deleteJob } from "./core/services/deleteService";
 
 const INPUT_ROOT = path.resolve("input")
 
@@ -186,21 +187,14 @@ app.put("/jobs/:jobId/audit", async (req, res) => {
 
 app.delete("/jobs/:jobId", async (req, res) => {
     try {
-    const {jobId} = req.params
+    const deleted = deleteJob(req.params.jobId, INPUT_ROOT)
 
-    if (!jobId || !jobId.startsWith("job-")) {
-        return res.status(400).json({error:"invalid job id"})
+    if(!deleted) {
+        return res.status(404).json({error:"File not deleted"})
     }
 
-    const jobDir = path.join(INPUT_ROOT, jobId)
+    return res.json({deleted:true})
 
-    if(!fs.existsSync(jobDir)) {
-        return res.status(404).json({error:"job not found"})
-    }
-    
-    fs.rmSync(jobDir, {recursive:true, force:true})
-
-    return res.json({deleted:true}) 
 } catch (err:any) {
     return res.status(500).json({error:err.message})
     } 

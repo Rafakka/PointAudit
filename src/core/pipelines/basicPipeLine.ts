@@ -4,8 +4,7 @@ import { readState, writeState } from '../state/state'
 import { runExtraction } from './extractionPipeLine'
 import { WaitForConfirmation } from './userInputsFromUi'
 import { loadPersonalJson } from '../fileManagement/personalJson'
-import { loadTimeSheetJson } from '../fileManagement/timeSheetJson'
-import { JoinedUserContext, WriteJsonOutput } from '../fileManagement/ouputTypes'
+import { OutputManager } from '../fileManagement/outputManager'
 
 
 export async function RunBasicPipeLine(
@@ -52,24 +51,21 @@ export async function runFinalization(jobDir:string){
         throw new Error (`Cannot finalize job in phase ${state?.phase??"unknown"}`)
     }
 
-    const personal = await loadPersonalJson(jobDir)
-    const timesheet = await loadTimeSheetJson(jobDir)
+    const {data:personal} = await loadPersonalJson(jobDir)
 
-    const context: JoinedUserContext = {
-        meta: personal.meta,
-        person:personal.person,
-        timesheet:timesheet.dias,
-    }
-
-    const outputDir = path.join(jobDir,"output")
-    const outputPath = WriteJsonOutput(context, outputDir)
+    const outputPath = await OutputManager({
+        baseDir:jobDir,
+        userId:personal.meta.userId,
+        outputType:"json",
+        outputDir: path.join(jobDir,"output")
+    })
 
     writeState(jobDir,"finalized")
 
     return {
         phase:"finalized",
         outputPath,
-        userId:context.meta.userId
+        userId:personal.meta.userId
     }
 
 }

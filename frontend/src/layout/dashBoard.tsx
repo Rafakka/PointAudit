@@ -8,6 +8,7 @@ import EmptyState from "./mainPanel/emptyState"
 import { useRef } from "react"
 import { Upload, Eye, CheckCircle, Rocket, Trash2} from "lucide-react"
 import type { Phase, JoinedUserContext} from "../types/pipeline"
+import { unWrapExtracted } from "../adapters/extractedAdapter"
 
 type MainAreaProps = {
   phase: Phase | null
@@ -52,9 +53,11 @@ export default function DashBoard(){
         try{
             setLoading(true)
             setError(null)
-
             const result = await getExtractedData(jobId)
-            setExtractedData(result.data)
+            const unwrapped = unWrapExtracted(result)
+            setExtractedData(unwrapped)
+            console.log(unwrapped)
+            console.log("going phase")
             setPhase(result.phase)
             setEditMode(true)
 
@@ -275,7 +278,7 @@ function MainArea({
           </h2>
 
           <div className="space-y-4 text-sm">
-            {Object.entries(extractedData.timesheet.dias).map(
+            {Object.entries(extractedData?.timesheet?.dias ?? {}).map(
               ([key, day]) => (
                 <div key={key} className="border-b pb-4">
 
@@ -299,7 +302,7 @@ function MainArea({
               ...prev,
               timesheet: {
                 ...prev.timesheet,
-                days: {
+                dias: {
                   ...prev.timesheet.dias,
                   [key]: {
                     ...prev.timesheet.dias[key],
@@ -347,7 +350,7 @@ function MainArea({
                       ...prev,
                       timesheet: {
                         ...prev.timesheet,
-                        days: {
+                        dias: {
                           ...prev.timesheet.dias,
                           [key]: updatedDay
                         }
@@ -380,7 +383,7 @@ function MainArea({
                                   ...prev,
                                   timesheet: {
                                     ...prev.timesheet,
-                                    days: {
+                                    dias: {
                                       ...prev.timesheet.dias,
                                       [key]: updatedDay
                                     }

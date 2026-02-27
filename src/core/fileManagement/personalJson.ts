@@ -58,13 +58,18 @@ export function savePersonalJson(
 
 }
 
-export async function loadPersonalJson(baseDir:string){
+export async function loadPersonalJson(baseDir:string): Promise<{
+    data:MaskedPersonalData,
+    path:string
+}>{
 
-    const file = path.join(baseDir,"personal.json")
+    const filePath = path.join(baseDir,"personal.json")
 
-    if(!fs.existsSync(file)){
-        throw new Error(`personal.json not found at ${file}`)
+    const raw = fs.readFileSync(filePath,"utf-8")
+    const data = JSON.parse(raw)
+
+    return {
+        data,
+        path: filePath
     }
-
-    return JSON.parse(fs.readFileSync(file,"utf-8"))
 }

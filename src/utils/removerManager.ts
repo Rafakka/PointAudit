@@ -1,13 +1,12 @@
 
 import * as fs from 'fs'
-import path from 'path'
 
-export function safeDelete(req:Request, res:Response){
-    const inputPath = path.join(process.cwd(),"input")
+export function safeDelete(inputPath:string):boolean {
 
-    if(fs.existsSync(inputPath)) {
-        fs.rmSync(inputPath,{recursive:true, force:true})
+    if(!fs.existsSync(inputPath)) {
+        return false
     }
-    
-    res.json()
+
+    fs.rmSync(inputPath, {recursive:true, force:true})
+    return true 
 }

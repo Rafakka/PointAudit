@@ -20,7 +20,7 @@ export function saveTimeSheetJson(
     outputDir:string
 ){
     const normalizedDias = Object.fromEntries(
-    Object.entries(data.dias).map(([date,day]) => [
+    Object.entries(data.dias ?? {}).map(([date,day]) => [
             date,
             {
                 ...day,
@@ -49,15 +49,23 @@ export function saveTimeSheetJson(
 }
 
 
+export async function loadTimeSheetJson(baseDir:string): Promise<{
+    data: PersonalTimeData
+    path:string
+}>{
 
-export async function loadTimeSheetJson(baseDir:string){
+    const filePath = path.join(baseDir,"timesheet.json")
 
-    const file = path.join(baseDir,"timesheet.json")
-
-    if(!fs.existsSync(file)){
+    if(!fs.existsSync(filePath)){
         throw new Error ("timesheet.json not found")
     }
 
-    return JSON.parse(fs.readFileSync(file,"utf-8"))
+    const raw = fs.readFileSync(filePath, "utf8")
+    const data = JSON.parse(raw)
+
+    return {
+        data,
+        path:filePath
+    }
 
 }
