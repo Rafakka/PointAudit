@@ -188,13 +188,13 @@ app.delete("/jobs/:jobId", async (req, res) => {
     try {
     const {jobId} = req.params
 
-    if (!jobId || jobId.startsWith("job-")) {
+    if (!jobId || !jobId.startsWith("job-")) {
         return res.status(400).json({error:"invalid job id"})
     }
 
     const jobDir = path.join(INPUT_ROOT, jobId)
 
-    if(fs.existsSync(jobDir)) {
+    if(!fs.existsSync(jobDir)) {
         return res.status(404).json({error:"job not found"})
     }
     

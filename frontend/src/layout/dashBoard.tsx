@@ -6,7 +6,7 @@ import { clearInput } from "../api/delete"
 import { getExtractedData } from "../api/jobs"
 import EmptyState from "./mainPanel/emptyState"
 import { useRef } from "react"
-import { Upload, Eye, CheckCircle, Rocket, Trash2 } from "lucide-react"
+import { Upload, Eye, CheckCircle, Rocket, Trash2} from "lucide-react"
 import type { Phase, JoinedUserContext} from "../types/pipeline"
 
 type MainAreaProps = {
@@ -27,6 +27,7 @@ export default function DashBoard(){
     const [error, setError] = useState<string | null>(null)
     const [extractedData, setExtractedData] = useState<JoinedUserContext | null>(null)
     const [editMode, setEditMode] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement|null>(null)
 
     async function handleUpload(file:File):Promise<void>{
         try{
@@ -40,6 +41,7 @@ export default function DashBoard(){
         }catch(err:any){
             setError(err.message)
         }finally{
+        if(fileInputRef.current) {fileInputRef.current.value=""}
             setLoading(false)
         }
     }
@@ -106,6 +108,7 @@ export default function DashBoard(){
     return (
         <div className="h-screen w-screen flex bg-gray-100">
             <SideBar
+            fileInputRef={fileInputRef}
             phase ={phase}
             onUpload={handleUpload}
             onHandleViewer={handleViewer}
@@ -134,14 +137,15 @@ function SideBar(props:{
     onConfirm:() => void,
     onFinalize:() => void,
     onClear:() => void,
+    fileInputRef: React.RefObject<HTMLInputElement | null>
 }){
     const canView = props.phase === "ingested"
     const canConfirm = props.phase === "extracted"
     const canFinalize = props.phase === "confirmed"
     const canClear = props.phase !== null
     const canUpload = props.phase === null
-
     const fileInputRef = useRef<HTMLInputElement>(null)
+
     return (
     <aside className="w-64 bg-white border-1 flex flex-col p-4 gap-3">
     <input
@@ -151,7 +155,10 @@ function SideBar(props:{
     style={{ display: "none" }}
     onChange={(e) => {
       const file = e.target.files?.[0]
-      if (file) props.onUpload(file)
+      if (file) {
+        props.onUpload(file)
+        e.target.value = ""
+      }
     }}
     />
   <button onClick={() => fileInputRef.current?.click()}

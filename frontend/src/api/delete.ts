@@ -1,6 +1,7 @@
+import { API_BASE } from "./client";
 
 export async function clearInput(jobId:string){
-    const res = await fetch(`/jobs/${jobId}`,{
+    const res = await fetch(`${API_BASE}/jobs/${jobId}`,{
         method:"DELETE"
     })
 
