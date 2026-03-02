@@ -1,8 +1,13 @@
-export type Phase =
-| "ingested"
-| "extracted"
-| "confirmed"
-| "finalized"
+export type {
+    Phase,
+    TimeHm,
+    DayRecord,
+    JoinedUserContext,
+    uploadResponse,
+
+} from "../../../contracts"
+
+import type { DayRecord } from "../../../contracts"
 
 export interface PersonalData {
     meta : {
@@ -18,21 +23,6 @@ export interface PersonalData {
         department?:string
         company?:string
     }
-}
-
-export interface TimeHm {
-    h:number
-    m:number
-}
-
-export interface DayRecord {
-    date:string
-    weekday:string
-    saldoPositivo?: TimeHm
-    previsto:TimeHm[]
-    realizado:TimeHm[]
-    atrasos?: TimeHm
-    observacao: string
 }
 
 export interface PersonalTimeData {
@@ -55,36 +45,6 @@ export type MaskedPersonalData = {
     }
 }
 
-export interface JoinedUserContext {
-    meta:{
-        userId:string
-        source:string
-        extractedAt:string
-        schemaVersions: {
-            personal:number
-            timesheet: number
-        }
-    }
-    person :{
-        name:string
-        emplyeeIdHash:string
-        role?:string
-        company?:string
-    }
-    timesheet : {
-        days:Record<string,
-        {
-            date:string
-            weekday:string
-            previsto: {h:number, m:number}[]
-            realizado:{h:number, m:number}[]
-            saldoPositivo?:{h:number, m:number}
-            atraso?:{h:number, m:number}
-            observacao:string
-        }>
-    }
-}
-
 export type OutputType =
 | "json"
 | "csv"
@@ -95,9 +55,4 @@ export type JsonArtifact = {
     path:string
     size:number
     updatedAt:number
-}
-
-export type uploadResponse = {
-    jobId: string
-    phase: Phase
 }

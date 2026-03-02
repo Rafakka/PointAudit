@@ -10,6 +10,7 @@ import { loadPersonalJson, savePersonalJson } from './core/fileManagement/person
 import { loadTimeSheetJson, saveTimeSheetJson } from './core/fileManagement/timeSheetJson';
 import { getJobBalance } from "./core/services/balanceServices";
 import { deleteJob } from "./core/services/deleteService";
+import type {ConfirmResponse} from "../contracts"
 
 const INPUT_ROOT = path.resolve("input")
 
@@ -124,11 +125,17 @@ app.post("/jobs/:jobId/confirm", async (req, res) => {
         if(!state || state.phase !== "extracted") {
             throw new Error("Job is not ready for confirmation")
         }
-        writeState(jobDir,"confirmed")
+       writeState(jobDir, "confirmed")
 
-        return res.json({
-            phase:"confirmed"
-        })
+       const balance = await getJobBalance(jobDir)
+
+        const response: ConfirmResponse = {
+            phase:"confirmed",
+            balance
+        }
+
+        return res.json(response)
+       
     } catch (err:any) {
         return res.status(400).json({error:err.message})
     }

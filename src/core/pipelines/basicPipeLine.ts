@@ -57,7 +57,7 @@ export async function runFinalization(jobDir:string){
         baseDir:jobDir,
         userId:personal.meta.userId,
         outputType:"json",
-        outputDir: path.join(jobDir,"output")
+        outputDir:"output"
     })
 
     writeState(jobDir,"finalized")

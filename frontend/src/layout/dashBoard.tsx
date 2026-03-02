@@ -7,7 +7,7 @@ import { getExtractedData } from "../api/jobs"
 import EmptyState from "./mainPanel/emptyState"
 import { useRef } from "react"
 import { Upload, Eye, CheckCircle, Rocket, Trash2} from "lucide-react"
-import type { Phase, JoinedUserContext} from "../types/pipeline"
+import type { Phase, JoinedUserContext, BalancedResult} from "@contracts"
 import { unWrapExtracted } from "../adapters/extractedAdapter"
 
 type MainAreaProps = {
@@ -29,6 +29,7 @@ export default function DashBoard(){
     const [extractedData, setExtractedData] = useState<JoinedUserContext | null>(null)
     const [editMode, setEditMode] = useState(false)
     const fileInputRef = useRef<HTMLInputElement|null>(null)
+    const [balance, setBalance] = useState<BalancedResult | null>(null)  
 
     async function handleUpload(file:File):Promise<void>{
         try{
@@ -73,8 +74,10 @@ export default function DashBoard(){
         try {
             setLoading(true)
             const result = await confirmJob(jobId)
+            setPhase(result.phase)
+            setBalance(result.balance)
             setEditMode(false)
-            setPhase(result.phase)}catch(err:any){
+          }catch(err:any){
                 setError(err.message)
             } finally {
                 setLoading(false)

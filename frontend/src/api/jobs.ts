@@ -1,5 +1,6 @@
-import type { ExtractedResponse } from "../types/pipeline";
+import type {ConfirmResponse, ExtractedResponse} from "@contracts"
 import { API_BASE } from "./client";
+
 
 export async function getJobState(jobId:string) {
     const res = await fetch(`${API_BASE}/jobs/${jobId}/state`)
@@ -17,7 +18,7 @@ export async function getExtractedData(jobId:string): Promise<ExtractedResponse>
         return res.json()
 }
 
-export async function confirmJob(jobId:string) {
+export async function confirmJob(jobId:string): Promise<ConfirmResponse> {
     const res = await fetch(`${API_BASE}/jobs/${jobId}/confirm`,{
         method:"POST",
     })

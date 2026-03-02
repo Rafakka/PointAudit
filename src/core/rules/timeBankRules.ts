@@ -1,14 +1,9 @@
+import { BalancedResult } from "../../../contracts/balance"
 import { DayRecord } from "../fileManagement/types"
 
 export type TimeRuleConfig = {
   onlyFullExtraHours: boolean
   allowCrossDayCompensation: boolean
-}
-
-export type TimeBankResult = {
-  totalMinutes: number
-  totalHours: number
-  formatted: string
 }
 
 export const defaultTimeRules: TimeRuleConfig = {
@@ -39,18 +34,23 @@ function formatMinutes(totalMinutes: number) {
 export function calculateTimeBank(
   days: Record<string, DayRecord>,
   config: TimeRuleConfig
-): TimeBankResult {
+): BalancedResult {
 
   const orderedDays = Object.values(days).sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   )
 
   let runningBalance = 0
+  let totalWorked = 0
+  let totalRequired = 0
 
   for (const day of orderedDays) {
 
     const previstoTotal = sumTimes(day.previsto)
     const realizadoTotal = sumTimes(day.realizado)
+
+    totalWorked += realizadoTotal
+    totalRequired += previstoTotal
 
     let diff = realizadoTotal - previstoTotal
 
@@ -71,8 +71,9 @@ export function calculateTimeBank(
   }
 
   return {
-    totalMinutes: runningBalance,
-    totalHours: runningBalance / 60,
-    formatted: formatMinutes(runningBalance)
+    totalWorkingMinutes: totalWorked,
+    totalRequiredMinutes: totalRequired,
+    balancedMinutes: runningBalance,
+    formattedBalance: formatMinutes(runningBalance)
   }
 }
