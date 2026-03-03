@@ -1,69 +1,24 @@
-import type {Phase} from "./phase"
-import type {BalancedResult} from "./balance"
+import type { TimeSheetData } from "./time"
+import type { Phase } from "./phase"
 
-export type ConfirmResponse = {
-    phase: Phase,
-    balance: BalancedResult
-}
-
-export type uploadResponse = {
+export interface JobMeta {
     jobId: string
-    phase: Phase
+    extractedAt: string
+    source:string
+    schemaVersion: number
 }
 
-export interface ExtractedResponse {
-    phase: Phase
-    data: {
-        personal: {
-            data:{
-                meta:JoinedUserContext["personal"]["meta"]
-                person:JoinedUserContext["person"]
-            }
-            path:string
-        }
-        timesheet:{
-            data:{
-            meta:JoinedUserContext["timesheet"]["meta"]
-            dias:JoinedUserContext["timesheet"]["dias"]
-            }
-            path:string
-        }
-    }
+export interface PersonData {
+    name:string
+    employeeId?:string
+    role?:string
+    department?:string
+    company?:string
 }
 
-export interface JoinedUserContext {
-    personal :{
-    meta:{
-        userId:string
-        source:string
-        extractedAt:string
-        schemaVersions: {
-            personal:number
-            timesheet: number
-            }
-        }
-    }
-    person:{
-        name:string
-        employeeIdHash:string
-        role?:string
-        company?:string
-    } 
-    timesheet : {
-        meta: {
-            schemaVersion:number
-            extractedAt:String
-        }
-        dias:Record<
-        string,
-        {
-            date:string
-            weekday:string
-            previsto: {h:number, m:number}[]
-            realizado:{h:number, m:number}[]
-            saldoPositivo?:{h:number, m:number}
-            atraso?:{h:number, m:number}
-            observacao:string
-        }>
-    }
+export interface JobDocument {
+    meta: JobMeta
+    phase:Phase
+    person:PersonData
+    timesheet: TimeSheetData
 }

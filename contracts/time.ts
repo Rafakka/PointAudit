@@ -1,4 +1,3 @@
-import { PersonalMeta } from "./personal"
 
 export interface TimeHm {
     h:number
@@ -10,7 +9,17 @@ export type TimeEntry = {
   horas: string
 }
 
-export type TimeSheetData = {
-  meta: PersonalMeta
-  dias: TimeEntry[]
+export interface DayRecord {
+    date:string
+    weekday:string
+    saldoPositivo?: TimeHm
+    saldoNegativo?: TimeHm
+    previsto:TimeHm[]
+    realizado:TimeHm[]
+    atrasos?: TimeHm
+    observacao: string
+}
+
+export interface TimeSheetData {
+    dias: Record<string, DayRecord>
 }

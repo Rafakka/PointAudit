@@ -3,7 +3,7 @@ import { WriteJsonOutput } from './ouputTypes'
 import { safeDelete } from '../../utils/removerManager'
 import { MaskedPersonalData, OutputType, PersonalTimeData } from './types'
 import { loadPersonalJson } from './personalJson'
-import { loadTimeSheetJson } from './timeSheetJson'
+import { loadTimeSheetJson } from './jobDocumentTools'
 
 interface OutputManagerOptions {
     baseDir: string

@@ -4,14 +4,13 @@ import { normalize } from "../../parser/basic"
 import { extractData } from "../../parser/dataUserParser"
 import { buildTimeSheet } from "../../parser/timeSheetFormatter"
 import { formatUserData } from "../../parser/dataUserFormatter"
-import { savePersonalJson } from "../fileManagement/personalJson"
-import { saveTimeSheetJson } from "../fileManagement/timeSheetJson"
-import { writeState } from "../state/state"
 import { extrairDadosPonto } from '../../parser/commonPdfParser'
+import { saveJobDocument } from '../fileManagement/jobDocumentTools'
+import { JobDocument, PersonData } from '../../../contracts'
 
 export async function runExtraction(
     jobDir:string, 
-) {
+):Promise<JobDocument> {
 
     const files = fs.readdirSync(jobDir)
     const pdfFile = files.find(f=>f.toLocaleLowerCase().endsWith(".pdf"))
@@ -25,28 +24,33 @@ export async function runExtraction(
     const result = await extrairDadosPonto(pdfPath)
     const normalized = normalize(result)
 
-    const personal = extractData(normalized)
-    const timesheet = buildTimeSheet(normalized)
+    const personalRaw = extractData(normalized)
 
-    const personalData = formatUserData ({
-        parsed:personal,
-        source:path.basename(jobDir)
-        })
-            
-    savePersonalJson(personalData, jobDir)
-
-    const timeData = {
-        meta:personalData.meta,
-        dias:timesheet.dias
-        }
-
-    saveTimeSheetJson(timeData,jobDir)
-
-    writeState(jobDir,"extracted")
-
-    return {
-        phase:"extracted",
-        personalData,
-        timeData
+    const person: PersonData = {
+        name:personalRaw.nome,
+        employeeId:personalRaw.registro,
+        role:personalRaw.cargo,
+        department:personalRaw.centroCusto,
+        company:personalRaw.centroCusto
     }
+
+    const timesheetRaw = buildTimeSheet(normalized)
+
+    const jobId = path.basename(jobDir)
+
+    const jobDocument: JobDocument = {
+        meta : {
+            jobId,
+            extractedAt: new Date().toISOString(),
+            source:pdfFile,
+            schemaVersion:1
+        },
+        phase:"extracted",
+        person,
+        timesheet:timesheetRaw
+    } 
+    
+    saveJobDocument(jobDir, jobDocument)
+
+    return jobDocument
 }

@@ -1,4 +1,4 @@
-import { type ExtractedResponse } from "../types/pipeline"
+import { type ExtractedResponse } from "@contracts"
 
 export function unWrapExtracted(response:ExtractedResponse){
     return{

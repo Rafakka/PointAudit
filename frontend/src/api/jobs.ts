@@ -1,4 +1,4 @@
-import type {ConfirmResponse, ExtractedResponse} from "@contracts"
+import type {ConfirmResponse, ExtractedResponse, JoinedUserContext} from "@contracts"
 import { API_BASE } from "./client";
 
 
@@ -35,4 +35,16 @@ export async function finalizeJob(jobId:string) {
     if(!res.ok) throw new Error("Failed to finalize job")
         return res.json()
 }
- 
+
+export async function updateJob(jobId:string, data:JoinedUserContext) {
+
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/update`,
+        {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(data)
+    })
+
+    if(!res.ok) throw new Error("Failed to update job")
+    
+}

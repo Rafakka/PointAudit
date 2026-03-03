@@ -1,14 +1,7 @@
-import { parse } from "path";
 import { generatedUserId } from "../core/fileManagement/hasher";
 
 export interface UserIdentity {
     userId:string
-    meta : {
-        schemaVersion:number
-        extractedAt:string
-        source:string
-        userId:string
-    }
     person : {
         name:string
         employeeId:string
@@ -44,13 +37,6 @@ export function formatUserData({
 
     const userId = generatedUserId(rawUserKey)
 
-    const meta = {
-        schemaVersion:1,
-        extractedAt,
-        source,
-        userId
-    }
-
     const person: UserIdentity["person"] = {
         name:parsed.nome,
         employeeId:parsed.registro,
@@ -70,7 +56,6 @@ export function formatUserData({
 
     return {
         userId,
-        meta,
         person,
     }
 }

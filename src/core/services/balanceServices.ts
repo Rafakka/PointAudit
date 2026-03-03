@@ -1,6 +1,6 @@
 import { calculateTimeBank } from "../rules/timeBankRules"
 import type { TimeRuleConfig } from "../rules/timeBankRules"
-import { loadTimeSheetJson } from "../fileManagement/timeSheetJson"
+import { loadTimeSheetJson } from "../fileManagement/jobDocumentTools"
 
 const defaultRules: TimeRuleConfig = {
   onlyFullExtraHours: true,

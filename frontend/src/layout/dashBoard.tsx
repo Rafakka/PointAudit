@@ -1,23 +1,24 @@
 import { useState } from "react"
 import { uploadPdf } from "../api/upload"
-import { confirmJob } from "../api/jobs"
+import { confirmJob, updateJob } from "../api/jobs"
 import { finalizeJob } from "../api/jobs"
 import { clearInput } from "../api/delete"
 import { getExtractedData } from "../api/jobs"
 import EmptyState from "./mainPanel/emptyState"
 import { useRef } from "react"
 import { Upload, Eye, CheckCircle, Rocket, Trash2} from "lucide-react"
-import type { Phase, JoinedUserContext, BalancedResult} from "@contracts"
+import type { Phase, JobDocument, BalancedResult} from "@contracts"
 import { unWrapExtracted } from "../adapters/extractedAdapter"
 
 type MainAreaProps = {
   phase: Phase | null
   loading: boolean
   error: string | null
-  extractedData: JoinedUserContext | null
-  setExtractedData: React.Dispatch<React.SetStateAction<JoinedUserContext | null>>
+  extractedData: JobDocument | null
+  setExtractedData: React.Dispatch<React.SetStateAction<JobDocument | null>>
   editMode: boolean
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>
+  balance:BalancedResult | null
 }
 
 export default function DashBoard(){
@@ -26,7 +27,7 @@ export default function DashBoard(){
     const [phase, setPhase] = useState<Phase | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [extractedData, setExtractedData] = useState<JoinedUserContext | null>(null)
+    const [extractedData, setExtractedData] = useState<JobDocument | null>(null)
     const [editMode, setEditMode] = useState(false)
     const fileInputRef = useRef<HTMLInputElement|null>(null)
     const [balance, setBalance] = useState<BalancedResult | null>(null)  
@@ -73,6 +74,7 @@ export default function DashBoard(){
         if(!jobId)return
         try {
             setLoading(true)
+            await updateJob(jobId, extractedData)
             const result = await confirmJob(jobId)
             setPhase(result.phase)
             setBalance(result.balance)
@@ -124,6 +126,7 @@ export default function DashBoard(){
             
             />
             <MainArea
+            balance={balance}
             phase={phase}
             loading={loading}
             error={error}
@@ -228,7 +231,8 @@ function MainArea({
   editMode,
   setEditMode,
   setExtractedData,
-  error
+  error,
+  balance
 }: MainAreaProps) {
 
   const canEdit = phase === "extracted"
@@ -410,9 +414,19 @@ function MainArea({
               )
             )}
           </div>
-
+      {phase!=="confirmed" && (
+        <div className="balance-panel">
+          <h3>Time Bank Summary</h3>
+          <p>Total Worked:{balance.totalWorkingMinutes} min </p>
+          <p>Total Required:{balance.totalRequiredMinutes} min </p>
+          <p>Final Balance:
+            <strong>
+              {balance.formattedBalance}
+            </strong>
+          </p>
+          <div/>
+      )}
         </div>
-
       </section>
     </main>
   )
