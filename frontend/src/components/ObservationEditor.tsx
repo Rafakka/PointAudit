@@ -1,9 +1,9 @@
 
 
 type Props = {
-    day: ...
+    day: any
     editMode: boolean
-    setExtractedData: ...
+    setExtractedData: any
     dayKey: string
 }
 

@@ -10,7 +10,7 @@ import { Upload, Eye, CheckCircle, Rocket, Trash2} from "lucide-react"
 import type { Phase, JobDocument, BalancedResult} from "@contracts"
 import { unWrapExtracted } from "../adapters/extractedAdapter"
 import BalancePanel from "../components/BalancePanel.tsx"
-import ObservationEditor from "../components/ObservationEditor.tsx"
+import DayCard from "../components/DayCard.tsx"
 
 type MainAreaProps = {
   phase: Phase | null
@@ -289,86 +289,18 @@ function MainArea({
           <div className="space-y-4 text-sm">
             {Object.entries(extractedData?.timesheet?.dias ?? {}).map(
               ([key, day]) => (
-                <div key={key} className="border-b pb-4">
-
-        <div><strong>Data:</strong> {day.date}</div>
-        <div><strong>Semana:</strong> {day.weekday}</div>
-
-
-    <ObservationEditor
-        day={day}
-        dayKey={key}
-        editMode={editMode}
-        setExtractedData={setExtractedData}
-    />
-   
-  {/* Realizado */}
-  <div className="mt-3">
-    <strong>Realizado:</strong>
-
-    <div className="flex flex-wrap gap-4 mt-2">
-    {day.realizado.map((time, index) => (
-        <TimeEntryEditor
-            key={index}
-            time={time}
-            editMode={editMode}
-
-            onHourChange={(newHour) => {
-            setExtractedData(prev => {
-            if (!prev) return prev
-
-            const updatedDay = {
-          ...prev.timesheet.dias[key],
-          realizado: prev.timesheet.dias[key].realizado.map((t, i) =>
-            i === index ? { ...t, h: newHour } : t
-          )
-        }
-
-        return {
-          ...prev,
-          timesheet: {
-            ...prev.timesheet,
-            dias: {
-              ...prev.timesheet.dias,
-              [key]: updatedDay
-            }
-          }
-        }
-      })
-    }}
-
-    onMinuteChange={(newMin) => {
-      setExtractedData(prev => {
-        if (!prev) return prev
-
-        const updatedDay = {
-          ...prev.timesheet.dias[key],
-          realizado: prev.timesheet.dias[key].realizado.map((t, i) =>
-            i === index ? { ...t, m: newMin } : t
-          )
-        }
-
-        return {
-          ...prev,
-          timesheet: {
-            ...prev.timesheet,
-            dias: {
-              ...prev.timesheet.dias,
-              [key]: updatedDay
-                                    }
-                                }
-                            }
-                        })
-                    }}
-                />
-            ))}
-        </div>
-    </div>
-
+               <DayCard
+                key={key}
+                day={day}
+                dayKey={key}
+                editMode={editMode}
+                setExtractedData={setExtractedData}
+                /> 
+            )
+        )}
             </div>
-      ))}
-          </div>
         </div>
+
             
     {phase!=="confirmed" && balance && (
         <BalancePanel balance={balance}/>
