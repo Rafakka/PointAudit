@@ -9,6 +9,8 @@ import { useRef } from "react"
 import { Upload, Eye, CheckCircle, Rocket, Trash2} from "lucide-react"
 import type { Phase, JobDocument, BalancedResult} from "@contracts"
 import { unWrapExtracted } from "../adapters/extractedAdapter"
+import BalancePanel from "../components/BalancePanel.tsx"
+import ObservationEditor from "../components/ObservationEditor.tsx"
 
 type MainAreaProps = {
   phase: Phase | null
@@ -289,144 +291,89 @@ function MainArea({
               ([key, day]) => (
                 <div key={key} className="border-b pb-4">
 
-  <div><strong>Data:</strong> {day.date}</div>
-  <div><strong>Semana:</strong> {day.weekday}</div>
+        <div><strong>Data:</strong> {day.date}</div>
+        <div><strong>Semana:</strong> {day.weekday}</div>
 
-  {/* Observação */}
-  <div className="mt-2">
-    <strong>Observação:</strong>
 
-    {editMode ? (
-      <input
-        value={day.observacao}
-        onChange={(e) => {
-          const newValue = e.target.value
-
-          setExtractedData(prev => {
-            if (!prev) return prev
-
-            return {
-              ...prev,
-              timesheet: {
-                ...prev.timesheet,
-                dias: {
-                  ...prev.timesheet.dias,
-                  [key]: {
-                    ...prev.timesheet.dias[key],
-                    observacao: newValue
-                  }
-                }
-              }
-            }
-          })
-        }}
-        className="border rounded px-2 py-1 ml-2"
-      />
-    ) : (
-      <span className="ml-2">{day.observacao}</span>
-    )}
-  </div>
-
+    <ObservationEditor
+        day={day}
+        dayKey={key}
+        editMode={editMode}
+        setExtractedData={setExtractedData}
+    />
+   
   {/* Realizado */}
   <div className="mt-3">
     <strong>Realizado:</strong>
 
     <div className="flex flex-wrap gap-4 mt-2">
-      {day.realizado.map((time, index) => (
-        <div key={index} className="flex items-center gap-1">
+    {day.realizado.map((time, index) => (
+        <TimeEntryEditor
+            key={index}
+            time={time}
+            editMode={editMode}
 
-          {editMode ? (
-            <>
-              <input
-                type="number"
-                value={time.h}
-                onChange={(e) => {
-                  const newHour = Number(e.target.value)
+            onHourChange={(newHour) => {
+            setExtractedData(prev => {
+            if (!prev) return prev
 
-                  setExtractedData(prev => {
-                    if (!prev) return prev
+            const updatedDay = {
+          ...prev.timesheet.dias[key],
+          realizado: prev.timesheet.dias[key].realizado.map((t, i) =>
+            i === index ? { ...t, h: newHour } : t
+          )
+        }
 
-                    const updatedDay = {
-                      ...prev.timesheet.dias[key],
-                      realizado: prev.timesheet.dias[key].realizado.map((t, i) =>
-                        i === index ? { ...t, h: newHour } : t
-                      )
-                    }
+        return {
+          ...prev,
+          timesheet: {
+            ...prev.timesheet,
+            dias: {
+              ...prev.timesheet.dias,
+              [key]: updatedDay
+            }
+          }
+        }
+      })
+    }}
 
-                    return {
-                      ...prev,
-                      timesheet: {
-                        ...prev.timesheet,
-                        dias: {
-                          ...prev.timesheet.dias,
-                          [key]: updatedDay
-                        }
-                      }
-                    }
-                  })
-                }}
-                            className="w-14 border rounded px-1"
-                          />
+    onMinuteChange={(newMin) => {
+      setExtractedData(prev => {
+        if (!prev) return prev
 
-                          <span>:</span>
+        const updatedDay = {
+          ...prev.timesheet.dias[key],
+          realizado: prev.timesheet.dias[key].realizado.map((t, i) =>
+            i === index ? { ...t, m: newMin } : t
+          )
+        }
 
-                          <input
-                            type="number"
-                            value={time.m}
-                            onChange={(e) => {
-                              const newMin = Number(e.target.value)
-
-                              setExtractedData(prev => {
-                                if (!prev) return prev
-
-                                const updatedDay = {
-                                  ...prev.timesheet.dias[key],
-                                  realizado: prev.timesheet.dias[key].realizado.map((t, i) =>
-                                    i === index ? { ...t, m: newMin } : t
-                                  )
-                                }
-
-                                return {
-                                  ...prev,
-                                  timesheet: {
-                                    ...prev.timesheet,
-                                    dias: {
-                                      ...prev.timesheet.dias,
-                                      [key]: updatedDay
+        return {
+          ...prev,
+          timesheet: {
+            ...prev.timesheet,
+            dias: {
+              ...prev.timesheet.dias,
+              [key]: updatedDay
                                     }
-                                  }
                                 }
-                              })
-                            }}
-                            className="w-14 border rounded px-1"
-                          />
-                        </>
-                      ) : (
-                        <span>{time.h.toString().padStart(2, "0")}:{time.m.toString().padStart(2, "0")}</span>
-                      )}
-
-                    </div>
-                  ))}
-                </div>
-              </div>
+                            }
+                        })
+                    }}
+                />
+            ))}
+        </div>
+    </div>
 
             </div>
-              )
-            )}
+      ))}
           </div>
-      {phase!=="confirmed" && (
-        <div className="balance-panel">
-          <h3>Time Bank Summary</h3>
-          <p>Total Worked:{balance.totalWorkingMinutes} min </p>
-          <p>Total Required:{balance.totalRequiredMinutes} min </p>
-          <p>Final Balance:
-            <strong>
-              {balance.formattedBalance}
-            </strong>
-          </p>
-          <div/>
-      )}
         </div>
+            
+    {phase!=="confirmed" && balance && (
+        <BalancePanel balance={balance}/>
+    )}
+
       </section>
     </main>
   )
