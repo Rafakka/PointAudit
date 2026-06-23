@@ -1,12 +1,16 @@
 
 import ObservationEditor from "../components/ObservationEditor.tsx"
 import TimeEntryEditor from "../components/TimeEntryEditor.tsx"
+import type {DayRecord, JobDocument} from "@contracts"
 
 type Props = {
-    day:day
+    day:DayRecord
     dayKey : string
     editMode: boolean
-    setExtractedData: any
+
+    setExtractedData: React.Dispatch <
+    React.SetStateAction<JobDocument | null >
+    >
 }
 
 export default function DayCard({

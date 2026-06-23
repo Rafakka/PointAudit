@@ -1,12 +1,17 @@
 
 
-type Props = {
-    day: any
-    editMode: boolean
-    setExtractedData: any
-    dayKey: string
-}
+import type {DayRecord, JobDocument} from "@contracts"
 
+type Props = {
+    day: DayRecord
+    editMode: boolean
+    dayKey: string
+
+    setExtractedData: React.Dispatch <
+    React.SetStateAction<JobDocument | null >
+    >
+}
+ 
 export default function ObservationEditor({
     day,
     editMode,

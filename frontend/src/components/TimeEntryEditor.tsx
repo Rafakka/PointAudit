@@ -1,11 +1,9 @@
 
 
-type Props = {
-  time: {
-    h: number
-    m: number
-  }
+import type {TimeHm} from "@contracts"
 
+type Props = {
+  time: TimeHm
   editMode: boolean
   onHourChange: (value:number) => void
   onMinuteChange: (value:number) => void
