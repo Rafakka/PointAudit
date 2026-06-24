@@ -18,5 +18,5 @@ export async function WaitForConfirmation(jobDir:string) {
         personalData,
         timeData,
         actions:["confirm","cancel"]
-    }
+    } 
 }

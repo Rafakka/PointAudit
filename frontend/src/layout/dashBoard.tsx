@@ -8,7 +8,6 @@ import EmptyState from "./mainPanel/emptyState"
 import { useRef } from "react"
 import { Upload, Eye, CheckCircle, Rocket, Trash2} from "lucide-react"
 import type { Phase, JobDocument, BalancedResult} from "@contracts"
-import { unWrapExtracted } from "../adapters/extractedAdapter"
 import BalancePanel from "../components/BalancePanel.tsx"
 import DayCard from "../components/DayCard.tsx"
 
@@ -33,15 +32,28 @@ export default function DashBoard(){
     const [editMode, setEditMode] = useState(false)
     const fileInputRef = useRef<HTMLInputElement|null>(null)
     const [balance, setBalance] = useState<BalancedResult | null>(null)  
+    const [savedPath,setSavedPath] = useState<string | null>(null)
 
     async function handleUpload(file:File):Promise<void>{
         try{
+            
+            console.log("UPLOAD INICIADO")
+
             setLoading(true)
             setError(null)
 
             const result = await uploadPdf(file)
+
+            console.log(
+                JSON.stringify(result, null, 2)
+            )
+
             setJobId(result.jobId)
             setPhase(result.phase)
+            
+            console.log("JOBID:", result.jobId)
+            console.log("PHASE:", result.phase)
+
 
         }catch(err:any){
             setError(err.message)
@@ -52,17 +64,20 @@ export default function DashBoard(){
     }
 
     async function handleViewer(){
+        
+        console.log("viewer iniciado")
+
         if(!jobId) return
 
         try{
             setLoading(true)
             setError(null)
             const result = await getExtractedData(jobId)
-            const unwrapped = unWrapExtracted(result)
-            setExtractedData(unwrapped)
-            console.log(unwrapped)
-            console.log("going phase")
+            console.log(result)
+            setExtractedData(result)
+            console.log(result)
             setPhase(result.phase)
+            console.log(result.phase)            
             setEditMode(true)
 
         }catch(err:any){
@@ -73,6 +88,7 @@ export default function DashBoard(){
     }
 
     async function handleConfirm(){
+        console.log("HANDLE CONFIRM DISPARADO ")
         if(!jobId)return
         try {
             setLoading(true)
@@ -81,6 +97,7 @@ export default function DashBoard(){
             setPhase(result.phase)
             setBalance(result.balance)
             setEditMode(false)
+            console.log(result.phase)            
           }catch(err:any){
                 setError(err.message)
             } finally {
@@ -89,20 +106,29 @@ export default function DashBoard(){
         }
 
     async function handleFinalize() {
+        console.log("HANDLE FINALIZE DISPARADO")
+        console.log(jobId)
         if(!jobId)return
         try{
         setLoading(true)
         const result = await finalizeJob(jobId)
+        console.log(result)
         setPhase(result.phase)
+        console.log(result.phase)
+        setSavedPath(result.filePath)
+        
+        console.log("Json salvo em: ", result.filePath)
+
         setEditMode(false)
+
+        
         } catch (err:any) {
             setError(err.message)
         } finally {
             setLoading(false)
-        }
-        
+        }    
     }
-
+    
     async function handleClear() {
       if(!jobId) return
 

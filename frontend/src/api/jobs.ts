@@ -10,7 +10,7 @@ export async function getJobState(jobId:string) {
 }
 
 export async function getExtractedData(jobId:string): Promise<ExtractedResponse>{
-    const res = await fetch(`${API_BASE}/jobs/${jobId}/extracted`)    
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/extract`)    
     if(!res.ok) {
         const err = await res.json()
         throw new Error(err.error || "Failed to load extracted data")
@@ -28,6 +28,7 @@ export async function confirmJob(jobId:string): Promise<ConfirmResponse> {
 }
 
 export async function finalizeJob(jobId:string) {
+
     const res = await fetch(`${API_BASE}/jobs/${jobId}/finalize`,{
         method:"POST",
     })

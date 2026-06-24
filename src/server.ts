@@ -8,6 +8,7 @@ import { loadJobDocument, saveJobDocument} from './core/fileManagement/jobDocume
 import { deleteJob } from "./core/services/deleteService";
 import type {JobDocument} from "../contracts"
 import { calculateTimeBank } from "./core/rules/timeBankRules";
+import type {Phase} from "../contracts/"
 
 const INPUT_ROOT = path.resolve("input")
 
@@ -42,8 +43,12 @@ app.post(
 
             fs.renameSync(req.file.path, targetPath)
 
+            const phase: Phase = "ingested"
+
             return res.json({
-                jobId
+                jobId,
+                phase,
+                nextAction:"preview"
             })
         } catch (err:any) {
             return res.status(500).json({
@@ -59,6 +64,8 @@ app.get("/jobs/:jobId/extract", async (req, res)=>{
  const jobDir = path.join(INPUT_ROOT,jobId)
 
  const job = await runExtraction(jobDir)
+
+ console.log("PHASE LIDA", job.phase)
 
  res.json(job)
 })
@@ -85,6 +92,8 @@ app.post("/jobs/:jobId/confirm", async (req, res) => {
 
         saveJobDocument(jobDir, job)
 
+        console.log("PHASE LIDA", job.phase)
+
         return res.json(job)
        
     } catch (err:any) {
@@ -102,16 +111,21 @@ app.post("/jobs/:jobId/finalize",async (req, res)=>{
         const jobDir = path.join(INPUT_ROOT, jobId)
 
         const job = loadJobDocument(jobDir)
+        
+        console.log("PHASE LIDA", job.phase)
 
         if (job.phase !== "confirmed"){
             return res.status(400).json({error:"invalid phase transition"})
         }
 
         job.phase = "finalized"
-        
-        saveJobDocument(jobDir, job)
 
-        return res.json (job)
+        const filePath = saveJobDocument(jobDir, job)
+
+        return res.json ({
+            ...job,
+            filePath
+        })
 
     }catch(err:any) {
         return res.status(400).json({
