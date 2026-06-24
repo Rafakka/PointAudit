@@ -120,6 +120,16 @@ export function buildTimeSheet(text:string): TimeSheet{
     return {dias}
 }
 
+function normalizePunches(times: TimeHm[]): TimeHm[] {
+    const result = [...times]
+
+    while (result.length < 4) {
+        result.push({ h: 0, m: 0 })
+    }
+
+    return result.slice(0, 4)
+}
+
 function parseDayLine(line:string): DayRecord {
 
     const header = matchDayHeader(line);
@@ -134,7 +144,11 @@ function parseDayLine(line:string): DayRecord {
 
     const timeGroups = extractTimeGroups(rest);
 
-    const { previsto, realizado} = parsePrevistoRealizado(timeGroups)
+    const parsed = parsePrevistoRealizado(timeGroups)
+
+    const previsto = normalizePunches(parsed.previsto)
+
+    const realizado = normalizePunches(parsed.realizado)
 
     const tail = rest.replace(timeGroupRegex,"").trim()
 

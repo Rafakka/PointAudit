@@ -1,3 +1,4 @@
+
 export type {
     Phase,
     TimeHm,
@@ -6,8 +7,6 @@ export type {
     uploadResponse,
 
 } from "../../../contracts"
-
-import type { DayRecord } from "../../../contracts"
 
 export interface PersonalData {
     meta : {
@@ -44,11 +43,6 @@ export type MaskedPersonalData = {
         company?:string
     }
 }
-
-export type OutputType =
-| "json"
-| "csv"
-| "pdf"
 
 export type JsonArtifact = {
     name:string

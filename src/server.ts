@@ -9,6 +9,7 @@ import { deleteJob } from "./core/services/deleteService";
 import type {JobDocument} from "../contracts"
 import { calculateTimeBank } from "./core/rules/timeBankRules";
 import type {Phase} from "../contracts/"
+import {outputManager} from "../src/core/fileManagement/outputManager.ts"
 
 const INPUT_ROOT = path.resolve("input")
 
@@ -148,6 +149,34 @@ app.delete("/jobs/:jobId", async (req, res) => {
 } catch (err:any) {
     return res.status(500).json({error:err.message})
     } 
+})
+
+app.post("/jobs/:jobId/export", async (req, res) => {
+    try {
+
+        const { jobId } = req.params
+        const { type } = req.body
+
+        const jobDir = path.join(INPUT_ROOT, jobId)
+
+        const job = loadJobDocument(jobDir)
+
+        const outputPath = await outputManager({
+            job,
+            outputType: type,
+            outputDir: jobDir
+        })
+
+        return res.json({
+            outputPath
+        })
+
+    } catch (err:any) {
+
+        return res.status(400).json({
+            error: err.message
+        })
+    }
 })
 
 app.get("/jobs/:jobId/balance", async (req, res) => {

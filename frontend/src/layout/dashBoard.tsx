@@ -10,6 +10,8 @@ import { Upload, Eye, CheckCircle, Rocket, Trash2} from "lucide-react"
 import type { Phase, JobDocument, BalancedResult} from "@contracts"
 import BalancePanel from "../components/BalancePanel.tsx"
 import DayCard from "../components/DayCard.tsx"
+import {ExportPanel} from "../components/ExportPanel.tsx"
+import {exportJob} from "../api/export.ts"
 
 type MainAreaProps = {
   phase: Phase | null
@@ -20,6 +22,10 @@ type MainAreaProps = {
   editMode: boolean
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>
   balance:BalancedResult | null
+  onExportJson: () => void
+  onExportPdf: () => void
+  onExportXlsx: () => void
+  
 }
 
 export default function DashBoard(){
@@ -33,6 +39,8 @@ export default function DashBoard(){
     const fileInputRef = useRef<HTMLInputElement|null>(null)
     const [balance, setBalance] = useState<BalancedResult | null>(null)  
     const [savedPath,setSavedPath] = useState<string | null>(null)
+    const [outputPath, setOutputPath] = useState<string | null>(null)
+    const [outputType, setOutputType] = useState<outputType | null>(null)
 
     async function handleUpload(file:File):Promise<void>{
         try{
@@ -129,6 +137,25 @@ export default function DashBoard(){
         }    
     }
     
+    async function handleExportJson() {
+
+        if (!jobId) return
+
+        const result = await exportJob(jobId,"json")
+
+        setOutputPath(result.outputPath)
+        setOutputType("json")
+
+    }
+
+    async function handleExportPdf() {
+        console.log("pdf")
+    }
+
+    async function handleExportXlsx(){
+        console.log("png")
+    }
+
     async function handleClear() {
       if(!jobId) return
 
@@ -162,6 +189,14 @@ export default function DashBoard(){
             setExtractedData={setExtractedData}
             editMode={editMode}
             setEditMode={setEditMode}
+            
+            onExportJson={handleExportJson}
+            onExportPdf = {handleExportPdf}
+            onExportXlsx = {handleExportXlsx}
+
+            outputPath={outputPath}
+            outputType={outputType}
+
             />
         </div>
     )
@@ -260,7 +295,12 @@ function MainArea({
   setEditMode,
   setExtractedData,
   error,
-  balance
+  balance,
+  onExportJson,
+  onExportPdf,
+  onExportXlsx,
+  outputPath,
+  outputType
 }: MainAreaProps) {
 
   const canEdit = phase === "extracted"
@@ -289,6 +329,42 @@ function MainArea({
     )
   }
 
+if (phase === "finalized") {
+  return (
+    <main className="flex-1 flex items-center justify-center">
+
+      <div className="w-full max-w-2xl">
+
+        <ExportPanel
+          onJson={onExportJson}
+          onPdf={onExportPdf}
+          onXlsx={onExportXlsx}
+        />
+
+        {outputPath && (
+          <div className="mt-4 bg-green-50 border border-green-300 rounded-lg p-4">
+
+            <h3 className="font-semibold">
+              Exportação concluída
+            </h3>
+
+            <p>
+              Formato: {outputType}
+            </p>
+
+            <code className="block mt-2 break-all">
+              {outputPath}
+            </code>
+
+          </div>
+        )}
+
+          </div>
+
+        </main>
+        )
+    }
+
   return (
     <main className="flex-1 flex flex-col">
 
@@ -305,7 +381,9 @@ function MainArea({
         )}
       </header>
 
-      <section className="flex-1 p-6">
+    <section className="flex-1 p-6">
+  
+    <div className="bg-white rounded shadow p-4 overflow-auto">
 
         <div className="bg-white rounded shadow p-4 overflow-auto">
           <h2 className="font-semibold mb-4 text-gray-700">
@@ -331,7 +409,7 @@ function MainArea({
     {phase!=="confirmed" && balance && (
         <BalancePanel balance={balance}/>
     )}
-
+     </div>
       </section>
     </main>
   )

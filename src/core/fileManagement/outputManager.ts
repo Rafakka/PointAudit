@@ -1,80 +1,34 @@
-import { JoinedUserContext} from './ouputTypes'
-import { WriteJsonOutput } from './ouputTypes'
-import { safeDelete } from '../../utils/removerManager'
-import { MaskedPersonalData, OutputType, PersonalTimeData } from './types'
-import { loadPersonalJson } from './personalJson'
-import { loadTimeSheetJson } from './jobDocumentTools'
+
+
+import type {OutputType} from "../../../contracts/outputTypes.ts"
+import type { JobDocument } from '../../../contracts/job.ts'
+import { writeJsonOutput} from "../../core/exporters/jsonExporter.ts"
 
 interface OutputManagerOptions {
-    baseDir: string
-    userId: string
+    job: JobDocument
     outputType: OutputType
     outputDir:string
 }
 
-export async function OutputManager(options:OutputManagerOptions) { const { baseDir, outputType, outputDir } = options 
-{
-    const personalResult = await loadPersonalJson(baseDir)
-    const timesheetResult = await loadTimeSheetJson(baseDir)
+export async function outputManager(
+    options: OutputManagerOptions
+): Promise<string> {
 
-    const personal = personalResult.data
-    const timesheet = timesheetResult.data
+    const { job, outputType, outputDir } = options
 
-    const context = buildJoinedContext(personal, timesheet)
+    switch (outputType) {
 
-    const outputPath = writeOutput(context, outputType, outputDir)
-
-    safeDelete(personalResult.path)
-    safeDelete(timesheetResult.path)
-
-    return outputPath
-
-    }
-}
-
-function buildJoinedContext(
-    personal:MaskedPersonalData,
-    timesheet:PersonalTimeData
-): JoinedUserContext {
-    if(personal.meta.userId !== timesheet.meta.userId) {
-        throw new Error("UserId mismatch")
-    }
-
-    return {
-        meta: {
-            userId:personal.meta.userId,
-            source:personal.meta.source,
-            extractedAt:personal.meta.extractedAt,
-            schemaVersions: {
-                personal: personal.meta.schemaVersion,
-                timesheet:timesheet.meta.schemaVersion
-            }
-        },
-        person:{
-            name:personal.person.name,
-            emplyeeIdHash:personal.person.employeeIdHash,
-            role:personal.person.role,
-            company:personal.person.company
-        },
-        timesheet: {
-            days:timesheet.dias
-        }
-    }
-}
-
-function writeOutput (
-    context:JoinedUserContext,
-    outputType:OutputType,
-    outputDir:string
-): string {
-    switch(outputType){
         case "json":
-            return WriteJsonOutput(context, outputDir)
-        case "csv":
-            throw new Error("Not yet")
+            return writeJsonOutput(job, outputDir)
+
         case "pdf":
-            throw new Error("Not yet")
-        default:
-            throw new Error("unsuported file")
+            return writePdfOutput(job, outputDir)
+
+        case "xlsx":
+            return writeXlsxOutput(job, outputDir)
+
+        default:i
+            throw new Error("unsupported output")
     }
-} 
+}
+
